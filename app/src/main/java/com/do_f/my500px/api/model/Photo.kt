@@ -1,5 +1,8 @@
 package com.do_f.my500px.api.model
 
+import android.os.Parcelable
+import java.io.Serializable
+
 data class Photo(
     val aperture: Any,
     val camera: String,
@@ -66,7 +69,14 @@ data class Photo(
     val votes_count: Int,
     val watermark: Boolean,
     val width: Int
-)
+) : Serializable
+
+fun Photo.getRatio(): Float {
+    return if (width > height)
+        (width.toFloat() / height.toFloat())
+    else
+        (height.toFloat() / width.toFloat())
+}
 
 data class User(
     val affection: Int,
@@ -84,39 +94,34 @@ data class User(
     val userpic_https_url: String,
     val userpic_url: String,
     val usertype: Int
-)
+) : Serializable
 
 data class Avatars(
     val default: Default,
     val large: Large,
     val small: Small,
     val tiny: Tiny
-)
+) : Serializable
 
 data class Default(
     val https: String
-)
+) : Serializable
 
 data class Tiny(
     val https: String
-)
+) : Serializable
 
 data class Small(
     val https: String
-)
+) : Serializable
 
 data class Large(
     val https: String
-)
+) : Serializable
 
 data class Image(
     val format: String,
     val https_url: String,
     val size: Int,
     val url: String
-)
-
-data class Filters(
-    val category: Boolean,
-    val exclude: Boolean
-)
+) : Serializable

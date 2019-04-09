@@ -14,7 +14,9 @@ import com.bumptech.glide.request.RequestOptions
 
 import com.do_f.my500px.R
 import com.do_f.my500px.adapters.ShowcaseAdapter
+import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.databinding.FragmentShowcaseBinding
+import com.do_f.my500px.ui.PhotoDetailActivity
 import com.do_f.my500px.viewmodel.ShowcaseViewModel
 
 class ShowcaseFragment : Fragment() {
@@ -26,7 +28,7 @@ class ShowcaseFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_showcase, container, false)
         viewModel = ViewModelProviders.of(this).get(ShowcaseViewModel::class.java)
-        adapter = ShowcaseAdapter(Glide.with(this))
+        adapter = ShowcaseAdapter(Glide.with(this)) { onPictureClick(it) }
         return binding.root
     }
 
@@ -41,6 +43,10 @@ class ShowcaseFragment : Fragment() {
         viewModel.data.observe(this, Observer {
             adapter.submitList(it)
         })
+    }
+
+    private fun onPictureClick(item: Photo) {
+        PhotoDetailActivity.newInstance(activity, item)
     }
 
     companion object {
