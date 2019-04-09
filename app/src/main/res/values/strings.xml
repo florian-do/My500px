@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">My500px</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="showcase_author">by %s</string>
+    <string name="showcase_time">• %s ago</string>
 </resources>
