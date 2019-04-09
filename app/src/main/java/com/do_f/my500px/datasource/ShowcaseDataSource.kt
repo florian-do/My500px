@@ -21,7 +21,7 @@ class ShowcaseDataSource(private val api: PhotosService) : PageKeyedDataSource<I
     }
 
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Photo>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     private fun callApi(page: Int, callback: (List<Photo>, nextPage: Int) -> Unit) {
