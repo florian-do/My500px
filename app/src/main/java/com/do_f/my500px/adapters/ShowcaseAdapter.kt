@@ -4,19 +4,14 @@ import android.arch.paging.PagedListAdapter
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.databinding.DataBindingUtil
-import android.graphics.drawable.Drawable
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 
 import com.bumptech.glide.RequestManager
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
@@ -28,8 +23,6 @@ class ShowcaseAdapter(private val glide: RequestManager,
                       private val orientation: Int,
                       private val mListener: (Photo) -> Unit)
     : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
-
-    private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val binding : AdapterShowcaseBinding = DataBindingUtil.inflate(
@@ -43,6 +36,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         getItem(p1)?.let { item ->
+            var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
             when(orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     windowWidth -= (32.px) * 2
@@ -57,7 +51,10 @@ class ShowcaseAdapter(private val glide: RequestManager,
                 text = resources.getString(R.string.showcase_author, item.user.fullname)
             }
 
-            glide.load(item.image_url[0]).into(p0.binding.picture)
+            glide.load(item.image_url[0])
+                .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
+                .into(p0.binding.picture)
+            
             glide.load(item.user.avatars.default.https)
                     .apply(RequestOptions.circleCropTransform())
                     .into(p0.binding.avatar)
