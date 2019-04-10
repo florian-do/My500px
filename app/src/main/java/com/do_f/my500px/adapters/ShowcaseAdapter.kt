@@ -4,13 +4,19 @@ import android.arch.paging.PagedListAdapter
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.databinding.DataBindingUtil
+import android.graphics.drawable.Drawable
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo

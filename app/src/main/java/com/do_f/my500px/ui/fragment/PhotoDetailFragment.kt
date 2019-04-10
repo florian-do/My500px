@@ -102,10 +102,6 @@ class PhotoDetailFragment : BFragment() {
         }
 
         updateImageSize()
-        Glide.with(this)
-            .load(item.images[0].https_url)
-            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
-            .preload()
 
         binding.title.afterMeasured {
             titleLines = lineCount
