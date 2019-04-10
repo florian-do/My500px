@@ -13,5 +13,6 @@ class App : Application() {
             .baseUrl(ApiClient.HOSTNAME)
             .client(ApiClient().get())
             .build()
+        var defaultSystemUiVisibility: Int = -1
     }
 }
