@@ -6,7 +6,7 @@ import com.do_f.my500px.api.service.PhotosService
 
 class ShowcaseDataSourceFactory(api : PhotosService) : DataSource.Factory<Int, Photo>() {
 
-    val source = ShowcaseDataSource(api)
+    private val source = ShowcaseDataSource(api)
 
     override fun create(): DataSource<Int, Photo> {
         return source

@@ -1,21 +1,29 @@
 package com.do_f.my500px.adapters
 
 import android.arch.paging.PagedListAdapter
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.databinding.DataBindingUtil
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
+
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.databinding.AdapterShowcaseBinding
+import com.do_f.my500px.px
+import com.do_f.my500px.setImageSizeFromRatioByWidth
 
-class ShowcaseAdapter(private val glide: RequestManager) : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
+class ShowcaseAdapter(private val glide: RequestManager,
+                      private val orientation: Int,
+                      private val mListener: (Photo) -> Unit)
+    : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
 
-    private val windowWidth: Float = Resources.getSystem().displayMetrics.widthPixels.toFloat()
+    private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val binding : AdapterShowcaseBinding = DataBindingUtil.inflate(
@@ -28,36 +36,30 @@ class ShowcaseAdapter(private val glide: RequestManager) : PagedListAdapter<Phot
     }
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
-        getItem(p1)?.let {
-            val imageRatio = getRatio(it.width.toFloat(), it.height.toFloat())
-
-            if (it.width > it.height) {
-                p0.binding.picture.layoutParams.height = (windowWidth / imageRatio).toInt()
-                p0.binding.picture.layoutParams.width = windowWidth.toInt()
-            } else {
-                p0.binding.picture.layoutParams.height = (windowWidth * imageRatio).toInt()
-                p0.binding.picture.layoutParams.width = windowWidth.toInt()
+        getItem(p1)?.let { item ->
+            when(orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    windowWidth -= (32.px) * 2
+                }
             }
 
-            p0.binding.title.text = it.name
-            p0.binding.likesCount.text = it.votes_count.toString()
-            p0.binding.commentsCount.text = it.comments_count.toString()
+            p0.binding.picture.setImageSizeFromRatioByWidth(windowWidth, item)
+            p0.binding.title.text = item.name
+            p0.binding.likesCount.text = item.votes_count.toString()
+            p0.binding.commentsCount.text = item.comments_count.toString()
             p0.binding.author.apply {
-                text = resources.getString(R.string.showcase_author, it.user.fullname)
+                text = resources.getString(R.string.showcase_author, item.user.fullname)
             }
 
-            glide.load(it.image_url[0]).into(p0.binding.picture)
-            glide.load(it.user.avatars.default.https)
+            glide.load(item.image_url[0]).into(p0.binding.picture)
+            glide.load(item.user.avatars.default.https)
                     .apply(RequestOptions.circleCropTransform())
                     .into(p0.binding.avatar)
-        }
-    }
 
-    private fun getRatio(w: Float, h: Float) : Float {
-        return if (w > h)
-            (w / h)
-        else
-            (h / w)
+            p0.binding.picture.setOnClickListener {
+                mListener.invoke(item)
+            }
+        }
     }
 
     class ViewHolder(val binding : AdapterShowcaseBinding) : RecyclerView.ViewHolder(binding.root)
