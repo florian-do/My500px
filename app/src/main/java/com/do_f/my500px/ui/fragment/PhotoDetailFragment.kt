@@ -11,6 +11,7 @@ import android.support.constraint.ConstraintSet
 import android.support.transition.ChangeBounds
 import android.support.transition.TransitionManager
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
@@ -21,18 +22,21 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
+import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
 import com.do_f.my500px.setSizeFromRatio
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
+import com.do_f.my500px.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_photo_detail.*
 
-class PhotoDetailFragment : Fragment() {
+class PhotoDetailFragment : BFragment() {
 
     private lateinit var item: Photo
     private lateinit var viewModel: PhotoDetailViewModel
+    private var sharedViewModel: SharedViewModel? = null
     private lateinit var binding : FragmentPhotoDetailBinding
     private val windowWidth: Float = Resources.getSystem().displayMetrics.widthPixels.toFloat()
-    private var listener: OnFragmentInteractionListener? = null
+    private var mListener: OnFragmentInteractionListener? = null
     private var position: Int = 0
 
     private val constraint1 = ConstraintSet()
@@ -54,11 +58,15 @@ class PhotoDetailFragment : Fragment() {
             null,
             false)
 
+        sharedViewModel = activity?.run {
+            ViewModelProviders.of(this).get(SharedViewModel::class.java)
+        }
+
         viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
         binding.vm = viewModel
         binding.root.setOnClickListener {
             if (!showContent) {
-                listener?.let {
+                mListener?.let {
                     it.setUIVisibility(!it.getUIVisibility())
                     val isUIHidden : Boolean = it.getUIVisibility()
                     binding.showUI = isUIHidden
@@ -68,10 +76,8 @@ class PhotoDetailFragment : Fragment() {
         }
 
         binding.back.setOnClickListener {
-            val intent = Intent()
-            intent.putExtra(ARG_POSITION, position)
-            activity?.setResult(1337, intent)
-            activity?.finish()
+            mListener?.myOnBackPress()
+            sharedViewModel?.set(position)
         }
 
         binding.expandContent.setOnClickListener {
@@ -85,7 +91,12 @@ class PhotoDetailFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        binding.showUI = listener?.getUIVisibility()
+        binding.showUI = mListener?.getUIVisibility()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        sharedViewModel?.set(position)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -171,19 +182,20 @@ class PhotoDetailFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
-            listener = context
+            mListener = context
         }
     }
 
     override fun onDetach() {
         super.onDetach()
-        listener = null
+        mListener = null
     }
 
     interface OnFragmentInteractionListener {
         fun onViewRootClick(isHidden: Boolean)
         fun getUIVisibility() : Boolean
         fun setUIVisibility(isUIHidden: Boolean)
+        fun myOnBackPress()
     }
 
     companion object {
