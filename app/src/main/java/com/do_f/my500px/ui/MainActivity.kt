@@ -21,11 +21,13 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        defaultSystemUiVisibility = window.decorView.systemUiVisibility
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.content, ShowcaseFragment.newInstance())
-            .commitNow()
+        if (savedInstanceState == null) {
+            defaultSystemUiVisibility = window.decorView.systemUiVisibility
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.content, ShowcaseFragment.newInstance())
+                .commitNow()
+        }
         // You can retrieve the consumer key with BuildConfig.FIVEPX_API_KEY
     }
 

@@ -7,15 +7,29 @@ import android.view.ViewTreeObserver
 import android.widget.TextView
 import com.do_f.my500px.api.model.Photo
 
-fun View.setSizeFromRatio(windowWidth: Float, item: Photo)
+fun View.setImageSizeFromRatioByWidth(max: Float, item: Photo)
         : ViewGroup.LayoutParams? = layoutParams.apply {
     val imageRatio = item.getRatio()
+
     if (item.width > item.height) {
-        height = (windowWidth / imageRatio).toInt()
-        width = windowWidth.toInt()
+        height = (max / imageRatio).toInt()
+        width = max.toInt()
     } else {
-        height = (windowWidth * imageRatio).toInt()
-        width = windowWidth.toInt()
+        height = (max * imageRatio).toInt()
+        width = max.toInt()
+    }
+}
+
+fun View.setImageSizeFromRatioByHeight(max: Float, item: Photo)
+        : ViewGroup.LayoutParams? = layoutParams.apply {
+    val imageRatio = item.getRatio()
+
+    if (item.width > item.height) {
+        height = max.toInt()
+        width = (max * imageRatio).toInt()
+    } else {
+        height = max.toInt()
+        width = (max * imageRatio).toInt()
     }
 }
 
@@ -36,3 +50,9 @@ inline fun <T: TextView> T.afterMeasured(crossinline onFinished: T.() -> Unit)  
         }
     })
 }
+
+
+val Int.dp: Int
+    get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+val Int.px: Int
+    get() = (this * Resources.getSystem().displayMetrics.density).toInt()

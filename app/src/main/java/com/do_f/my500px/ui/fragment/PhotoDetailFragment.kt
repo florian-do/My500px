@@ -2,6 +2,7 @@ package com.do_f.my500px.ui.fragment
 
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -20,12 +21,10 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.do_f.my500px.R
-import com.do_f.my500px.afterMeasured
+import com.do_f.my500px.*
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
-import com.do_f.my500px.setSizeFromRatio
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import com.do_f.my500px.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_photo_detail.*
@@ -34,9 +33,9 @@ class PhotoDetailFragment : BFragment() {
 
     private lateinit var item: Photo
     private lateinit var viewModel: PhotoDetailViewModel
+    private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
     private var sharedViewModel: SharedViewModel? = null
     private lateinit var binding : FragmentPhotoDetailBinding
-    private val windowWidth: Float = Resources.getSystem().displayMetrics.widthPixels.toFloat()
     private var mListener: OnFragmentInteractionListener? = null
     private var position: Int = 0
     private var titleLines: Int = 0
@@ -60,6 +59,15 @@ class PhotoDetailFragment : BFragment() {
             R.layout.fragment_photo_detail,
             null,
             false)
+
+        when(resources.configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                windowWidth = Resources.getSystem().displayMetrics.heightPixels.toFloat()
+            }
+            Configuration.ORIENTATION_PORTRAIT -> {
+                windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
+            }
+        }
 
         sharedViewModel = activity?.run {
             ViewModelProviders.of(this).get(SharedViewModel::class.java)
@@ -87,7 +95,7 @@ class PhotoDetailFragment : BFragment() {
             doAnimation()
         }
 
-        binding.picture.setSizeFromRatio(windowWidth, item)
+        updateImageSize()
         Glide.with(this)
             .load(item.images[0].https_url)
             .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
@@ -161,7 +169,8 @@ class PhotoDetailFragment : BFragment() {
         when (showContent) {
             true -> {
                 updateConstraint(R.layout.fragment_photo_detail)
-                binding.picture.setSizeFromRatio(windowWidth, item)
+                updateImageSize()
+
                 binding.extraContent.animate().alpha(0F).setDuration(300).start()
                 binding.informationSperator.visibility = GONE
                 binding.expandContent.setImageResource(R.drawable.ic_expand_less)
@@ -196,6 +205,17 @@ class PhotoDetailFragment : BFragment() {
         val transition = ChangeBounds()
         transition.interpolator = DecelerateInterpolator()
         TransitionManager.beginDelayedTransition(root, transition)
+    }
+
+    private fun updateImageSize() {
+        when(resources.configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                binding.picture.setImageSizeFromRatioByHeight(windowWidth, item)
+            }
+            Configuration.ORIENTATION_PORTRAIT -> {
+                binding.picture.setImageSizeFromRatioByWidth(windowWidth, item)
+            }
+        }
     }
 
     override fun onAttach(context: Context) {

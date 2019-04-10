@@ -1,11 +1,11 @@
 package com.do_f.my500px.adapters
 
 import android.arch.paging.PagedListAdapter
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.databinding.DataBindingUtil
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 
@@ -15,12 +15,15 @@ import com.bumptech.glide.request.RequestOptions
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.databinding.AdapterShowcaseBinding
-import com.do_f.my500px.setSizeFromRatio
+import com.do_f.my500px.px
+import com.do_f.my500px.setImageSizeFromRatioByWidth
 
-class ShowcaseAdapter(private val glide: RequestManager, private val mListener: (Photo) -> Unit)
+class ShowcaseAdapter(private val glide: RequestManager,
+                      private val orientation: Int,
+                      private val mListener: (Photo) -> Unit)
     : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
 
-    private val windowWidth: Float = Resources.getSystem().displayMetrics.widthPixels.toFloat()
+    private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val binding : AdapterShowcaseBinding = DataBindingUtil.inflate(
@@ -34,7 +37,13 @@ class ShowcaseAdapter(private val glide: RequestManager, private val mListener: 
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         getItem(p1)?.let { item ->
-            p0.binding.picture.setSizeFromRatio(windowWidth, item)
+            when(orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    windowWidth -= (32.px) * 2
+                }
+            }
+
+            p0.binding.picture.setImageSizeFromRatioByWidth(windowWidth, item)
             p0.binding.title.text = item.name
             p0.binding.likesCount.text = item.votes_count.toString()
             p0.binding.commentsCount.text = item.comments_count.toString()

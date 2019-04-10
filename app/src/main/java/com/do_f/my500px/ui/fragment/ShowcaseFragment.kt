@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +32,7 @@ class ShowcaseFragment : BFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_showcase, container, false)
         viewModel = ViewModelProviders.of(this).get(ShowcaseViewModel::class.java)
-        adapter = ShowcaseAdapter(Glide.with(this)) { onPictureClick(it) }
+        adapter = ShowcaseAdapter(Glide.with(this), resources.configuration.orientation) { onPictureClick(it) }
 
         return binding.root
     }
@@ -51,6 +52,7 @@ class ShowcaseFragment : BFragment() {
         binding.rvFeed.layoutManager = LinearLayoutManager(context)
         binding.rvFeed.adapter = this.adapter
         viewModel.data.observe(this, Observer {
+            Log.d("lol", "observe ${it?.count()}")
             adapter.submitList(it)
         })
 
