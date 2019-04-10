@@ -2,6 +2,7 @@ package com.do_f.my500px.ui.fragment
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -16,6 +17,7 @@ import com.do_f.my500px.R
 import com.do_f.my500px.adapters.ShowcaseAdapter
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.databinding.FragmentShowcaseBinding
+import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.PhotoDetailActivity
 import com.do_f.my500px.viewmodel.ShowcaseViewModel
 
@@ -46,7 +48,23 @@ class ShowcaseFragment : Fragment() {
     }
 
     private fun onPictureClick(item: Photo) {
-        PhotoDetailActivity.newInstance(activity, item)
+        adapter.currentList?.let {
+            DataHolder.instance.data = it
+
+            val intent = Intent(activity, PhotoDetailActivity::class.java)
+            intent.putExtra(PhotoDetailActivity.ARG_ITEM, item)
+            startActivityForResult(intent, 1337)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == 1337) {
+            data?.let {
+                val position = it.getIntExtra(PhotoDetailFragment.ARG_POSITION, 0)
+                binding.rvFeed.scrollToPosition(position)
+            }
+        }
     }
 
     companion object {

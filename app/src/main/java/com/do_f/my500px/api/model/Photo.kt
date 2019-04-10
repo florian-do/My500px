@@ -1,11 +1,10 @@
 package com.do_f.my500px.api.model
 
-import android.os.Parcelable
 import java.io.Serializable
 
 data class Photo(
-    val aperture: Any,
-    val camera: String,
+    val aperture: String?,
+    val camera: String?,
     val category: Int,
     val collections_count: Int,
     val comments: List<Any>,
@@ -23,7 +22,7 @@ data class Photo(
     val favorites_count: Int,
     val feature: String,
     val feature_date: String,
-    val focal_length: Any,
+    val focal_length: String?,
     val for_critique: Boolean,
     val for_sale: Boolean,
     val for_sale_date: Any,
@@ -36,9 +35,9 @@ data class Photo(
     val image_url: List<String>,
     val images: List<Image>,
     val is_free_photo: Boolean,
-    val iso: Any,
+    val iso: String?,
     val latitude: Any,
-    val lens: String,
+    val lens: String?,
     val license_requests_enabled: Boolean,
     val license_type: Int,
     val licensing_requested: Boolean,
@@ -56,7 +55,7 @@ data class Photo(
     val rating: Double,
     val request_to_buy_enabled: Boolean,
     val sales_count: Int,
-    val shutter_speed: Any,
+    val shutter_speed: String?,
     val status: Int,
     val store_height: Int,
     val store_width: Int,
@@ -70,13 +69,6 @@ data class Photo(
     val watermark: Boolean,
     val width: Int
 ) : Serializable
-
-fun Photo.getRatio(): Float {
-    return if (width > height)
-        (width.toFloat() / height.toFloat())
-    else
-        (height.toFloat() / width.toFloat())
-}
 
 data class User(
     val affection: Int,

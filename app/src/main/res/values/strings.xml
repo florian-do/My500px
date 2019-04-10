@@ -8,4 +8,6 @@
 	<string name="title_activity_photo_detail">PhotoDetailActivity</string>
 	<string name="action_settings">Settings</string>
 	<string name="section_format">Hello World from section: %1$d</string>
+	<string name="pulse">Pulse</string>
+	<string name="views">Views</string>
 </resources>
