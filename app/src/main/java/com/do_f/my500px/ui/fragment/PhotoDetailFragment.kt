@@ -149,9 +149,18 @@ class PhotoDetailFragment : BFragment() {
                 }
             })
             .into(binding.picture)
+
         Glide.with(this).load(item.user.avatars.default.https)
             .apply(RequestOptions.circleCropTransform())
             .into(binding.avatar)
+
+        when(resources.configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                Glide.with(this).load(item.user.avatars.default.https)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(binding.toolbarAvatar!!)
+            }
+        }
 
         viewModel.author.set(item.user.fullname)
         viewModel.title.set(item.name)
@@ -205,13 +214,24 @@ class PhotoDetailFragment : BFragment() {
                 binding.title.setLines(titleLines)
                 binding.description.afterMeasured {
                     descriptionLines = lineCount
-                    setLines(3)
+                    if (lineCount > 3)
+                        setLines(3)
+                    else
+                        setLines(lineCount)
                 }
-                binding.description.ellipsize = TextUtils.TruncateAt.END
 
+                binding.description.ellipsize = TextUtils.TruncateAt.END
                 binding.informationSperator.visibility = VISIBLE
                 binding.expandContent.setImageResource(R.drawable.ic_expand_more)
-                binding.picture.scaleType = ImageView.ScaleType.CENTER_CROP
+
+                when(resources.configuration.orientation) {
+                    Configuration.ORIENTATION_LANDSCAPE -> {
+
+                    }
+                    Configuration.ORIENTATION_PORTRAIT -> {
+                        binding.picture.scaleType = ImageView.ScaleType.CENTER_CROP
+                    }
+                }
             }
         }
 
