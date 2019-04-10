@@ -52,6 +52,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
             }
 
             glide.load(item.image_url[0])
+                .placeholder(R.drawable.fivepx_logo_dark)
                 .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
                 .into(p0.binding.picture)
             
