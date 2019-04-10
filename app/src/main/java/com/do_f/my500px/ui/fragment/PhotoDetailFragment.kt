@@ -20,6 +20,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.do_f.my500px.*
 import com.do_f.my500px.api.model.Photo
@@ -28,6 +29,11 @@ import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import com.do_f.my500px.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_photo_detail.*
+import android.graphics.drawable.Drawable
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.target.Target
+
 
 class PhotoDetailFragment : BFragment() {
 
@@ -59,7 +65,7 @@ class PhotoDetailFragment : BFragment() {
             R.layout.fragment_photo_detail,
             null,
             false)
-
+        binding.loading = true
         when(resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 windowWidth = Resources.getSystem().displayMetrics.heightPixels.toFloat()
@@ -129,7 +135,20 @@ class PhotoDetailFragment : BFragment() {
         constraint1.clone(root)
         constraint2.clone(context, R.layout.fragment_photo_detail_alt)
 
-        Glide.with(this).load(item.images[0].https_url).into(binding.picture)
+        Glide.with(this).load(item.images[0].https_url)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?, model: Any?,
+                    target: Target<Drawable>?, isFirstResource: Boolean): Boolean  = false
+
+                override fun onResourceReady(
+                    resource: Drawable?, model: Any?,
+                    target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    binding.loading = false
+                    return false
+                }
+            })
+            .into(binding.picture)
         Glide.with(this).load(item.user.avatars.default.https)
             .apply(RequestOptions.circleCropTransform())
             .into(binding.avatar)
@@ -175,6 +194,7 @@ class PhotoDetailFragment : BFragment() {
                 binding.informationSperator.visibility = GONE
                 binding.expandContent.setImageResource(R.drawable.ic_expand_less)
                 binding.title.setLines(1)
+                binding.loading = false
             }
             false -> {
                 updateConstraint(R.layout.fragment_photo_detail_alt)
