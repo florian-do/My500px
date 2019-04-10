@@ -2,7 +2,6 @@ package com.do_f.my500px.ui.fragment
 
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.Intent
 import android.content.res.Resources
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -10,17 +9,19 @@ import android.support.annotation.LayoutRes
 import android.support.constraint.ConstraintSet
 import android.support.transition.ChangeBounds
 import android.support.transition.TransitionManager
-import android.support.v4.app.Fragment
-import android.util.Log
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.do_f.my500px.R
+import com.do_f.my500px.afterMeasured
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
@@ -38,6 +39,8 @@ class PhotoDetailFragment : BFragment() {
     private val windowWidth: Float = Resources.getSystem().displayMetrics.widthPixels.toFloat()
     private var mListener: OnFragmentInteractionListener? = null
     private var position: Int = 0
+    private var titleLines: Int = 0
+    private var descriptionLines: Int = 0
 
     private val constraint1 = ConstraintSet()
     private val constraint2 = ConstraintSet()
@@ -85,6 +88,19 @@ class PhotoDetailFragment : BFragment() {
         }
 
         binding.picture.setSizeFromRatio(windowWidth, item)
+        Glide.with(this)
+            .load(item.images[0].https_url)
+            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+            .preload()
+
+        binding.title.afterMeasured {
+            titleLines = lineCount
+            setLines(1)
+        }
+
+        binding.description.setOnClickListener {
+            binding.description.setLines(descriptionLines)
+        }
 
         return binding.root
     }
@@ -146,24 +162,27 @@ class PhotoDetailFragment : BFragment() {
             true -> {
                 updateConstraint(R.layout.fragment_photo_detail)
                 binding.picture.setSizeFromRatio(windowWidth, item)
-                Glide.with(this).load(item.images[0].https_url).into(binding.picture)
-                binding.extraContent.animate().alpha(0F).setDuration(500).start()
+                binding.extraContent.animate().alpha(0F).setDuration(300).start()
                 binding.informationSperator.visibility = GONE
                 binding.expandContent.setImageResource(R.drawable.ic_expand_less)
+                binding.title.setLines(1)
             }
             false -> {
                 updateConstraint(R.layout.fragment_photo_detail_alt)
 
                 binding.extraContent.alpha = 0F
                 binding.extraContent.visibility = VISIBLE
-                binding.extraContent.animate().alpha(1F).setDuration(500).start()
+                binding.extraContent.animate().alpha(1F).setDuration(300).start()
+                binding.title.setLines(titleLines)
+                binding.description.afterMeasured {
+                    descriptionLines = lineCount
+                    setLines(3)
+                }
+                binding.description.ellipsize = TextUtils.TruncateAt.END
 
                 binding.informationSperator.visibility = VISIBLE
                 binding.expandContent.setImageResource(R.drawable.ic_expand_more)
-                Glide.with(this)
-                    .load(item.images[0].https_url)
-                    .apply(RequestOptions.centerCropTransform())
-                    .into(binding.picture)
+                binding.picture.scaleType = ImageView.ScaleType.CENTER_CROP
             }
         }
 
