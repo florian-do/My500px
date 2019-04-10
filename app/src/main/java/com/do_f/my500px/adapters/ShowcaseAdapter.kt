@@ -56,6 +56,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
                 .into(p0.binding.picture)
             
             glide.load(item.user.avatars.default.https)
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
                     .apply(RequestOptions.circleCropTransform())
                     .into(p0.binding.avatar)
 
