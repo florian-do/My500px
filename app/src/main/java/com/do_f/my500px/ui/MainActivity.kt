@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.do_f.my500px.App
 
 import com.do_f.my500px.R
 import com.do_f.my500px.listener.OnSystemUIListener
@@ -15,7 +16,6 @@ class MainActivity : AppCompatActivity(),
     OnSystemUIListener {
 
     private var isUIHidden: Boolean = true
-    private var defaultSystemUiVisibility: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -23,7 +23,9 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
-            defaultSystemUiVisibility = window.decorView.systemUiVisibility
+            if (App.defaultSystemUiVisibility == -1)
+                App.defaultSystemUiVisibility = window.decorView.systemUiVisibility
+
             supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.content, ShowcaseFragment.newInstance())
@@ -69,26 +71,18 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun hideSystemUI() {
-        // Enables regular immersive mode.
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                // Set the content to appear under the system bars so that the
-                // content doesn't resize when the system bars hide and show.
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                // Hide the nav bar and status bar
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
         window.statusBarColor = Color.argb(0, 255, 255, 255)
     }
 
-//     Shows the system bars by removing all the flags
-//     except for the ones that make the content appear under the system bars.
     private fun showSystemUI() {
-        window.decorView.systemUiVisibility = defaultSystemUiVisibility
         window.statusBarColor = Color.argb(0, 0, 0, 0)
+        window.decorView.systemUiVisibility = App.defaultSystemUiVisibility
     }
 }
