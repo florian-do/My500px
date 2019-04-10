@@ -104,7 +104,7 @@ class PhotoDetailFragment : BFragment() {
         updateImageSize()
         Glide.with(this)
             .load(item.images[0].https_url)
-            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
             .preload()
 
         binding.title.afterMeasured {

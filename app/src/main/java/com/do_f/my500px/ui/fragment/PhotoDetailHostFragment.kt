@@ -8,6 +8,9 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
@@ -50,6 +53,10 @@ class PhotoDetailHostFragment : BFragment() {
 
         override fun getItem(position: Int): Fragment {
             data[position]?.let {
+                Glide.with(this@PhotoDetailHostFragment)
+                    .load(it.images[0].https_url)
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+                    .preload()
                 return PhotoDetailFragment.newInstance(it, position)
             }
             return PhotoDetailFragment.newInstance(item, position)

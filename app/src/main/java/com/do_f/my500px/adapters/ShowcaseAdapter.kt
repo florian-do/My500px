@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 
 import com.do_f.my500px.R
@@ -50,8 +51,12 @@ class ShowcaseAdapter(private val glide: RequestManager,
                 text = resources.getString(R.string.showcase_author, item.user.fullname)
             }
 
-            glide.load(item.image_url[0]).into(p0.binding.picture)
+            glide.load(item.image_url[0])
+                .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
+                .into(p0.binding.picture)
+            
             glide.load(item.user.avatars.default.https)
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
                     .apply(RequestOptions.circleCropTransform())
                     .into(p0.binding.avatar)
 
