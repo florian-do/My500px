@@ -26,20 +26,27 @@ import com.do_f.my500px.ui.fragment.ShowcaseFragment
 import com.do_f.my500px.view.BackdropBehavior
 import kotlinx.android.synthetic.main.activity_main.*
 
-
 class MainActivity : AppCompatActivity(),
     PhotoDetailFragment.OnFragmentInteractionListener,
     OnSystemUIListener, GestureDetector.OnGestureListener, DismissEvent {
 
-    val TAG = "MainActivity"
-
+    private val TAG = "MainActivity"
     private val PICTURE_VIEWER_TAG = "picture_viewer_tag"
+    private val THRESHOLD_EVENT_DISMISS = 200F
+    private val MAX_ALPHA_VALUE = 255F
 
     private var isUIHidden: Boolean = true
     private var isPictureViewHidden = true
+    private var isScrolling = false
+    private var beginYPosition : Float = 0F
+    private var scrollOffsetWithThreshold : Float = 0F
 
     private lateinit var mDetector: GestureDetectorCompat
     private lateinit var backdropBehavior : BackdropBehavior
+
+    companion object {
+        var isSwipeDismissEnable: Boolean = true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -55,7 +62,6 @@ class MainActivity : AppCompatActivity(),
                 .beginTransaction()
                 .replace(R.id.backContainer, ShowcaseFragment.newInstance())
                 .commitNow()
-
         }
 
         backdropBehavior = frontContainer.findBehavior()
@@ -107,6 +113,7 @@ class MainActivity : AppCompatActivity(),
     override fun onViewRootClick(isHidden: Boolean) {
         when(isHidden) {
             false -> {
+                Log.d(TAG, "lol")
                 hideSystemUI()
             }
         }
@@ -121,7 +128,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun myOnBackPress() {
-        supportFragmentManager.popBackStack()
+        closePictureViewer()
     }
 
     /**
@@ -184,12 +191,6 @@ class MainActivity : AppCompatActivity(),
     override fun onDown(p0: MotionEvent?): Boolean = true
     override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean = true
 
-    private var isScrolling = false
-    private var beginYPosition : Float = 0F
-    private var scrollOffsetWithThreshold : Float = 0F
-    private var THRESHOLD_EVENT_DISMISS = 200F
-    private var MAX_ALPHA_VALUE = 255F
-
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
         if (isPictureViewHidden) return true
         if (p0.y > p1.y) return true
@@ -197,7 +198,7 @@ class MainActivity : AppCompatActivity(),
         if (beginYPosition == 0F) beginYPosition = frontContainer.y
 
         val scrollOffset = p1.y - p0.y
-        if (scrollOffset > THRESHOLD_EVENT_DISMISS && !isScrolling) {
+        if (scrollOffset > THRESHOLD_EVENT_DISMISS && !isScrolling && isSwipeDismissEnable) {
             prepareForDismissEvent()
         }
 

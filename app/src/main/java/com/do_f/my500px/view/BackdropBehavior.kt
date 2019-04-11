@@ -6,8 +6,6 @@ import android.support.design.widget.CoordinatorLayout
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import com.do_f.my500px.R
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 class BackdropBehavior : CoordinatorLayout.Behavior<View> {
 
@@ -72,5 +70,4 @@ class BackdropBehavior : CoordinatorLayout.Behavior<View> {
     fun attachPictureViewerBackground(@IdRes pictureViewerBackground : Int) {
         this.pictureViewerBackgroundId = pictureViewerBackground
     }
-
 }

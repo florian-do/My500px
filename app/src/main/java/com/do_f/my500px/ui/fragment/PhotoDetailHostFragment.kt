@@ -1,5 +1,6 @@
 package com.do_f.my500px.ui.fragment
 
+import android.arch.lifecycle.ViewModelProviders
 import android.arch.paging.PagedList
 import android.os.Bundle
 import android.support.v4.app.*
@@ -18,6 +19,7 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.singleton.DataHolder
+import com.do_f.my500px.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
 
 class PhotoDetailHostFragment : BFragment(), DismissEvent {
@@ -27,8 +29,10 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     private lateinit var item: Photo
     private lateinit var data : PagedList<Photo>
+    private var count: Int = 0
     private var position: Int = 0
 
+    private var sharedViewModel: SharedViewModel? = null
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,19 +49,31 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         data = DataHolder.instance.data
+        count = data.size
         systemUIListener?.isSystemUIHidden(true)
 
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
         container.adapter = mSectionsPagerAdapter
         container.currentItem = data.indexOf(item)
+        this.position = data.indexOf(item)
         container.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(p0: Int) { }
             override fun onPageScrolled(p0: Int, p1: Float, p2: Int) { }
             override fun onPageSelected(p0: Int) {
+                Log.d(TAG, "$p0")
                 this@PhotoDetailHostFragment.position = p0
             }
         })
         container.pageMargin = resources.getDimension(R.dimen.viewpager_margin).toInt()
+
+        sharedViewModel = activity?.run {
+            ViewModelProviders.of(this).get(SharedViewModel::class.java)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        sharedViewModel?.set(position)
     }
 
     override fun prepareForDismissEvent() {
@@ -86,7 +102,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         }
 
         override fun getCount(): Int {
-            return data.size
+            return this@PhotoDetailHostFragment.count
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {

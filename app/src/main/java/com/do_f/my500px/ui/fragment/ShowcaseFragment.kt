@@ -52,13 +52,12 @@ class ShowcaseFragment : BFragment() {
         binding.rvFeed.layoutManager = LinearLayoutManager(context)
         binding.rvFeed.adapter = this.adapter
         viewModel.data.observe(this, Observer {
-            Log.d("ShowcaseFragment", "observe: ${adapter.itemCount} -> ${it?.count()}")
             adapter.submitList(it)
             binding.loading = (adapter.itemCount == 0)
         })
 
         sharedViewModel?.position?.observe(this, Observer {
-            rvFeed.scrollToPosition(it?.minus(1) ?: 0)
+            rvFeed.scrollToPosition(it ?: 0)
         })
     }
 
@@ -66,7 +65,6 @@ class ShowcaseFragment : BFragment() {
         adapter.currentList?.let {
             DataHolder.instance.data = it
             systemUIListener?.tmp(item)
-//            replace(PhotoDetailHostFragment.newInstance(item))
         }
     }
 

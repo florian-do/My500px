@@ -35,6 +35,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.do_f.my500px.listener.DismissEvent
+import com.do_f.my500px.ui.MainActivity
 
 class PhotoDetailFragment : BFragment(), DismissEvent {
 
@@ -43,7 +44,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
     private lateinit var item: Photo
     private lateinit var viewModel: PhotoDetailViewModel
     private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
-    private var sharedViewModel: SharedViewModel? = null
     private lateinit var binding : FragmentPhotoDetailBinding
     private var mListener: OnFragmentInteractionListener? = null
     private var position: Int = 0
@@ -74,6 +74,8 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
             false)
 
         binding.loading = true
+        Log.d(TAG, "onCreateView: $showContent")
+        MainActivity.isSwipeDismissEnable = true
 
         when(resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
@@ -82,10 +84,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
             Configuration.ORIENTATION_PORTRAIT -> {
                 windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
             }
-        }
-
-        sharedViewModel = activity?.run {
-            ViewModelProviders.of(this).get(SharedViewModel::class.java)
         }
 
         viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
@@ -103,7 +101,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
 
         binding.back.setOnClickListener {
             mListener?.myOnBackPress()
-            sharedViewModel?.set(position)
         }
 
         binding.expandContent.setOnClickListener {
@@ -131,11 +128,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
     override fun onResume() {
         super.onResume()
         binding.showUI = mListener?.getUIVisibility()
-    }
-
-    override fun onStop() {
-        super.onStop()
-//        sharedViewModel?.set(position)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -208,6 +200,7 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
     private fun doAnimation(isFromInstanceState: Boolean = false) {
         when (showContent) {
             true -> {
+                MainActivity.isSwipeDismissEnable = true
                 updateConstraint(R.layout.fragment_photo_detail)
                 updateImageSize()
 
@@ -218,10 +211,11 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
                 binding.loading = false
             }
             false -> {
+                MainActivity.isSwipeDismissEnable = false
+
                 if (isFromInstanceState) {
                     binding.toolbar.visibility = GONE
                 }
-
                 updateConstraint(R.layout.fragment_photo_detail_alt)
 
                 binding.extraContent.alpha = 0F
