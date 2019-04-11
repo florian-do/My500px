@@ -30,12 +30,14 @@ import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import com.do_f.my500px.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_photo_detail.*
 import android.graphics.drawable.Drawable
+import android.util.Log
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 
-
 class PhotoDetailFragment : BFragment() {
+
+    private val UI_STATE = "ui_state"
 
     private lateinit var item: Photo
     private lateinit var viewModel: PhotoDetailViewModel
@@ -47,9 +49,8 @@ class PhotoDetailFragment : BFragment() {
     private var titleLines: Int = 0
     private var descriptionLines: Int = 0
 
-    private val constraint1 = ConstraintSet()
-    private val constraint2 = ConstraintSet()
     private var showContent = false
+    private var TAG = "PhotoDetail"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,13 +60,20 @@ class PhotoDetailFragment : BFragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(UI_STATE, showContent)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_photo_detail,
             null,
             false)
+
         binding.loading = true
+
         when(resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 windowWidth = Resources.getSystem().displayMetrics.heightPixels.toFloat()
@@ -126,14 +134,11 @@ class PhotoDetailFragment : BFragment() {
 
     override fun onStop() {
         super.onStop()
-        sharedViewModel?.set(position)
+//        sharedViewModel?.set(position)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        constraint1.clone(root)
-        constraint2.clone(context, R.layout.fragment_photo_detail_alt)
 
         Glide.with(this).load(item.images[0].https_url)
             .listener(object : RequestListener<Drawable> {
@@ -191,9 +196,15 @@ class PhotoDetailFragment : BFragment() {
             val exif = item.focal_length+"mm f/"+item.aperture+" "+item.shutter_speed+"s ISO"+item.iso
             viewModel.exif.set(exif)
         }
+
+        if (savedInstanceState != null) {
+//            showContent = !savedInstanceState.getBoolean(UI_STATE)
+//            Log.d(TAG, "performClick${binding.expandContent.performClick()}")
+//            doAnimation(true)
+        }
     }
 
-    private fun doAnimation() {
+    private fun doAnimation(isFromInstanceState: Boolean = false) {
         when (showContent) {
             true -> {
                 updateConstraint(R.layout.fragment_photo_detail)
@@ -206,6 +217,11 @@ class PhotoDetailFragment : BFragment() {
                 binding.loading = false
             }
             false -> {
+                if (isFromInstanceState) {
+                    Log.d(TAG, "isFromInstanceState: ")
+                    binding.toolbar.visibility = GONE
+                }
+
                 updateConstraint(R.layout.fragment_photo_detail_alt)
 
                 binding.extraContent.alpha = 0F
@@ -226,7 +242,8 @@ class PhotoDetailFragment : BFragment() {
 
                 when(resources.configuration.orientation) {
                     Configuration.ORIENTATION_LANDSCAPE -> {
-
+                        Log.d(TAG, "if landscape")
+                        binding.toolbar.visibility = GONE
                     }
                     Configuration.ORIENTATION_PORTRAIT -> {
                         binding.picture.scaleType = ImageView.ScaleType.CENTER_CROP

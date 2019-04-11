@@ -63,7 +63,8 @@ class ShowcaseFragment : BFragment() {
     private fun onPictureClick(item: Photo) {
         adapter.currentList?.let {
             DataHolder.instance.data = it
-            replace(PhotoDetailHostFragment.newInstance(item))
+            systemUIListener?.tmp(item)
+//            replace(PhotoDetailHostFragment.newInstance(item))
         }
     }
 

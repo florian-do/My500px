@@ -2,9 +2,11 @@ package com.do_f.my500px.ui.fragment
 
 import android.arch.paging.PagedList
 import android.os.Bundle
+import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,7 +48,10 @@ class PhotoDetailHostFragment : BFragment() {
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
         container.adapter = mSectionsPagerAdapter
         container.currentItem = data.indexOf(item)
-        container.pageMargin = resources.getDimension(R.dimen.viewpager_margin).toInt()
+//        container.pageMargin = resources.getDimension(R.dimen.viewpager_margin).toInt()
+        container.setOnTouchListener { _, _ ->
+            true
+        }
     }
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {

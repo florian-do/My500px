@@ -11,7 +11,7 @@ open class BFragment : Fragment() {
 
     fun replace(fragment: Fragment) {
         fragmentManager?.beginTransaction()
-            ?.replace(R.id.content, fragment)
+            ?.replace(R.id.backContainer, fragment)
             ?.addToBackStack(null)
             ?.commit()
     }
