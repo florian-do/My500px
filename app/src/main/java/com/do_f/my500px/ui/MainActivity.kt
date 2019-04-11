@@ -1,9 +1,10 @@
 package com.do_f.my500px.ui
 
+import android.animation.Animator
+import android.content.res.Resources
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.graphics.ColorUtils
 import android.support.v4.view.GestureDetectorCompat
 import android.support.v4.view.MotionEventCompat
 import android.util.Log
@@ -17,6 +18,7 @@ import com.do_f.my500px.App
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.findBehavior
+import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.listener.OnSystemUIListener
 import com.do_f.my500px.ui.fragment.PhotoDetailFragment
 import com.do_f.my500px.ui.fragment.PhotoDetailHostFragment
@@ -24,11 +26,14 @@ import com.do_f.my500px.ui.fragment.ShowcaseFragment
 import com.do_f.my500px.view.BackdropBehavior
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity(),
     PhotoDetailFragment.OnFragmentInteractionListener,
-    OnSystemUIListener, GestureDetector.OnGestureListener {
+    OnSystemUIListener, GestureDetector.OnGestureListener, DismissEvent {
 
     val TAG = "MainActivity"
+
+    private val PICTURE_VIEWER_TAG = "picture_viewer_tag"
 
     private var isUIHidden: Boolean = true
     private var isPictureViewHidden = true
@@ -56,7 +61,7 @@ class MainActivity : AppCompatActivity(),
         backdropBehavior = frontContainer.findBehavior()
         with(backdropBehavior) {
             attachBackContainer(R.id.backContainer)
-            attachFrontContainer(R.id.frontContainer)
+            attachPictureViewerBackground(R.id.pictureViewerBackground)
         }
 
         mDetector = GestureDetectorCompat(this, this)
@@ -70,21 +75,27 @@ class MainActivity : AppCompatActivity(),
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.frontContainer, PhotoDetailHostFragment.newInstance(item), "test")
+            .replace(R.id.frontContainer, PhotoDetailHostFragment.newInstance(item), PICTURE_VIEWER_TAG)
             .commitNow()
     }
 
     override fun onBackPressed() {
         if (!isPictureViewHidden) {
-            supportFragmentManager.findFragmentByTag("test")?.let {
-                backContainer.visibility = VISIBLE
-                frontContainer.visibility = GONE
-                supportFragmentManager.beginTransaction().remove(it).commit()
-                isPictureViewHidden = true
-                isSystemUIHidden(false)
-            }
+            closePictureViewer()
         } else {
             super.onBackPressed()
+        }
+    }
+
+    private fun closePictureViewer() {
+        supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)?.let {
+            backContainer.visibility = VISIBLE
+            frontContainer.visibility = GONE
+            frontContainer.y = 0F
+            pictureViewerBackground.visibility = GONE
+            supportFragmentManager.beginTransaction().remove(it).commit()
+            isPictureViewHidden = true
+            isSystemUIHidden(false)
         }
     }
 
@@ -148,12 +159,14 @@ class MainActivity : AppCompatActivity(),
         when (action) {
             MotionEvent.ACTION_UP -> {
                 if (isScrolling && !isPictureViewHidden) {
-//                    backContainer.visibility = GONE
-                    beginYPosition = 0F
-//                    pictureViewerBackground.visibility = GONE
-                    frontContainer.animate().y(0F).setDuration(300).start()
-//                    pictureViewerBackground.animate().alpha(1F).setDuration(300).start()
                     isScrolling = false
+
+                    if (scrollOffsetWithThreshold > Resources.getSystem().displayMetrics.heightPixels / 3)
+                        closePictureViewer()
+                    else
+                        resetDismissEvent()
+
+                    scrollOffsetWithThreshold = 0F
                 }
             }
         }
@@ -165,50 +178,76 @@ class MainActivity : AppCompatActivity(),
      * mGesture implementation
      */
 
-    override fun onShowPress(p0: MotionEvent?) {
-
-    }
-
+    override fun onShowPress(p0: MotionEvent?) { }
+    override fun onLongPress(p0: MotionEvent?) { }
     override fun onSingleTapUp(p0: MotionEvent?): Boolean = true
-
     override fun onDown(p0: MotionEvent?): Boolean = true
-
     override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean = true
 
     private var isScrolling = false
     private var beginYPosition : Float = 0F
-    private var startThresholdEvend : Float = 0F
+    private var scrollOffsetWithThreshold : Float = 0F
     private var THRESHOLD_EVENT_DISMISS = 200F
-    private var MAX_ALPHA_VALUE = 255
+    private var MAX_ALPHA_VALUE = 255F
 
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
         if (isPictureViewHidden) return true
         if (p0.y > p1.y) return true
-//        Log.d(TAG, "${p0.y} / ${p1.y}")
+        if (p0.y <= getToolbarHeight()) return true
         if (beginYPosition == 0F) beginYPosition = frontContainer.y
-        val scrollOffset = p1.y - p0.y
 
+        val scrollOffset = p1.y - p0.y
         if (scrollOffset > THRESHOLD_EVENT_DISMISS && !isScrolling) {
-            pictureViewerBackground.visibility = VISIBLE
-            backContainer.visibility = VISIBLE
-            isScrolling = true
+            prepareForDismissEvent()
         }
 
         if (isScrolling) {
-            val scrollOffsetWithThreshold = beginYPosition + (scrollOffset - THRESHOLD_EVENT_DISMISS)
-            val toolbarAlpha = MAX_ALPHA_VALUE - ((scrollOffsetWithThreshold * 255) / 1000).toInt()
-            val tmp = ((200 - scrollOffsetWithThreshold) * 1F / THRESHOLD_EVENT_DISMISS)
-            Log.d(TAG, "start : $toolbarAlpha + ${tmp}")
-            if (toolbarAlpha in 0..255) {
-                val color = ColorUtils.setAlphaComponent(resources.getColor(R.color.black), toolbarAlpha)
-                pictureViewerBackground.setBackgroundColor(color)
+            scrollOffsetWithThreshold = beginYPosition + (scrollOffset - THRESHOLD_EVENT_DISMISS)
+            if (scrollOffsetWithThreshold < 0) return true
+
+            val backgroundAlpha : Float = (MAX_ALPHA_VALUE - ((scrollOffsetWithThreshold * MAX_ALPHA_VALUE) / 1000)) / MAX_ALPHA_VALUE
+            if (backgroundAlpha in 0.0..1.0) {
+                pictureViewerBackground.alpha = backgroundAlpha
             }
+
             frontContainer.y = scrollOffsetWithThreshold
         }
         return true
     }
 
-    override fun onLongPress(p0: MotionEvent?) {
+    override fun prepareForDismissEvent() {
+        pictureViewerBackground.visibility = VISIBLE
+        backContainer.visibility = VISIBLE
+        isScrolling = true
+        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        f.prepareForDismissEvent()
+    }
 
+    override fun resetDismissEvent() {
+        beginYPosition = 0F
+        frontContainer.animate().y(0F).setDuration(300).start()
+        pictureViewerBackground.animate()
+            .alpha(1F)
+            .setDuration(300)
+            .setListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(p0: Animator?) { }
+                override fun onAnimationCancel(p0: Animator?) { }
+                override fun onAnimationStart(p0: Animator?) { }
+                override fun onAnimationEnd(p0: Animator?) {
+                    backContainer.visibility = GONE
+                }
+            })
+            .start()
+        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        f.resetDismissEvent()
+    }
+
+    private fun getToolbarHeight() : Int {
+        val styledAttributes = theme.obtainStyledAttributes(
+            intArrayOf(android.R.attr.actionBarSize)
+        )
+        val mActionBarSize = styledAttributes.getDimension(0, 0f).toInt()
+        styledAttributes.recycle()
+        return mActionBarSize
     }
 }

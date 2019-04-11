@@ -34,8 +34,9 @@ import android.util.Log
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
+import com.do_f.my500px.listener.DismissEvent
 
-class PhotoDetailFragment : BFragment() {
+class PhotoDetailFragment : BFragment(), DismissEvent {
 
     private val UI_STATE = "ui_state"
 
@@ -218,7 +219,6 @@ class PhotoDetailFragment : BFragment() {
             }
             false -> {
                 if (isFromInstanceState) {
-                    Log.d(TAG, "isFromInstanceState: ")
                     binding.toolbar.visibility = GONE
                 }
 
@@ -242,7 +242,6 @@ class PhotoDetailFragment : BFragment() {
 
                 when(resources.configuration.orientation) {
                     Configuration.ORIENTATION_LANDSCAPE -> {
-                        Log.d(TAG, "if landscape")
                         binding.toolbar.visibility = GONE
                     }
                     Configuration.ORIENTATION_PORTRAIT -> {
@@ -272,6 +271,23 @@ class PhotoDetailFragment : BFragment() {
             Configuration.ORIENTATION_PORTRAIT -> {
                 binding.picture.setImageSizeFromRatioByWidth(windowWidth, item)
             }
+        }
+    }
+
+    override fun prepareForDismissEvent() {
+        mListener?.let {
+//            Log.d(TAG, "prepareForDismissEvent: ${it.getUIVisibility()}")
+//            if (it.getUIVisibility())
+//                it.setUIVisibility(!it.getUIVisibility())
+//            val isUIHidden : Boolean = it.getUIVisibility()
+            binding.showUI = false
+        }
+    }
+
+    override fun resetDismissEvent() {
+//        Log.d(TAG, "resetDismissEvent: ")
+        mListener?.let {
+//            binding.showUI = it.getUIVisibility()
         }
     }
 

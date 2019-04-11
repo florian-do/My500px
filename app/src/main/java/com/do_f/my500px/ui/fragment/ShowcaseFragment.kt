@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,6 +52,7 @@ class ShowcaseFragment : BFragment() {
         binding.rvFeed.layoutManager = LinearLayoutManager(context)
         binding.rvFeed.adapter = this.adapter
         viewModel.data.observe(this, Observer {
+            Log.d("ShowcaseFragment", "observe: ${adapter.itemCount} -> ${it?.count()}")
             adapter.submitList(it)
             binding.loading = (adapter.itemCount == 0)
         })
