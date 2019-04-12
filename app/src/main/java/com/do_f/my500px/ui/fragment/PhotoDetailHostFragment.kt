@@ -46,6 +46,7 @@ class PhotoDetailHostFragment : BFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         data = DataHolder.instance.data
+        count = data.size
         systemUIListener?.isSystemUIHidden(true)
 
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
