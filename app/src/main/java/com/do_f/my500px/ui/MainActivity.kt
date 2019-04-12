@@ -25,6 +25,7 @@ import com.do_f.my500px.ui.fragment.PhotoDetailHostFragment
 import com.do_f.my500px.ui.fragment.ShowcaseFragment
 import com.do_f.my500px.view.BackdropBehavior
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
 
 class MainActivity : AppCompatActivity(),
     PhotoDetailFragment.OnFragmentInteractionListener,
@@ -163,6 +164,11 @@ class MainActivity : AppCompatActivity(),
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         mDetector.onTouchEvent(event)
+        if (supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) is PhotoDetailHostFragment) {
+            var fragment = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+            fragment.container.dispatchTouchEvent(event)
+        }
+
 
         val action: Int = MotionEventCompat.getActionMasked(event)
         when (action) {
@@ -195,7 +201,29 @@ class MainActivity : AppCompatActivity(),
 
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
         if (isPictureViewHidden) return true
-        if (p0.y > p1.y) return true
+
+        return if (p0.y > p1.y) {
+            handleMotionSceneEvent(p0, p1)
+        } else {
+            // Down
+            handleDismissEvent(p0, p1)
+        }
+    }
+
+    private fun handleMotionSceneEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
+        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        val scrollOffset = p0.y - p1.y
+//        Log.d(TAG, "$scrollOffset")
+
+
+//        Log.d(TAG, "$scrollOffset")
+//        f.motionLayout.progress = 0.5F
+
+
+        return true
+    }
+
+    private fun handleDismissEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
         if (p0.y <= getToolbarHeight()) return true
         if (beginYPosition == 0F) beginYPosition = frontContainer.y
 
@@ -217,6 +245,7 @@ class MainActivity : AppCompatActivity(),
         }
         return true
     }
+
 
     override fun prepareForDismissEvent() {
         pictureViewerBackground.visibility = VISIBLE

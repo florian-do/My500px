@@ -1,0 +1,16 @@
+<MotionScene
+	xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+	<Transition
+		motion:constraintSetStart="@layout/motion_scene_picture_viewer_start"
+		motion:constraintSetEnd="@layout/motion_scene_picture_viewer_end"
+		motion:duration="500">
+
+		<OnSwipe
+			motion:touchAnchorId="@+id/content"
+			motion:touchAnchorSide="top"
+			motion:dragDirection="dragUp" />
+
+	</Transition>
+
+</MotionScene>

@@ -1,10 +1,15 @@
 package com.do_f.my500px.ui.fragment
 
+import android.content.res.Configuration
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -12,14 +17,20 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedList
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
+import com.do_f.my500px.databinding.FragmentPhotoDetailHostBinding
 import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.singleton.DataHolder
+import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import com.do_f.my500px.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
 
@@ -33,6 +44,8 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
     private var count: Int = 0
     private var position: Int = 0
 
+    private lateinit var binding : FragmentPhotoDetailHostBinding
+    private lateinit var viewModel: PhotoDetailViewModel
     private var sharedViewModel: SharedViewModel? = null
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
 
@@ -44,7 +57,8 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_photo_detail_host, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_photo_detail_host, container, false)
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -69,6 +83,67 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
         sharedViewModel = activity?.run {
             ViewModelProviders.of(this).get(SharedViewModel::class.java)
+        }
+
+        viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
+        binding.vm = viewModel
+        binding.showUI = true
+        setupView()
+
+        motionLayout.setTransitionListener(object : MotionLayout.TransitionListener {
+            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
+                Log.d(TAG, "onTransitionTrigger")
+            }
+
+            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
+                Log.d(TAG, "onTransitionStarted")
+            }
+
+            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
+                Log.d(TAG, "onTransitionChange -> $p3")
+                p0?.transitionToState(p1)
+            }
+
+            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+                if (p1 == R.layout.motion_scene_picture_viewer_end)
+                    Log.d(TAG, "onTransitionCompleted -> $p1")
+            }
+        })
+    }
+
+    private fun setupView() {
+        Glide.with(this).load(item.user.avatars.default.https)
+            .apply(RequestOptions.circleCropTransform())
+            .into(binding.avatar)
+
+        viewModel.author.set(item.user.fullname)
+        viewModel.title.set(item.name)
+        viewModel.commentsCounts.set(item.comments_count.toString())
+        viewModel.likesCounts.set(item.votes_count.toString())
+        viewModel.pulse.set(item.rating.toString())
+        viewModel.views.set(item.times_viewed.toString())
+        viewModel.description.set(item.description)
+
+        if (item.camera == null) {
+            binding.cameraInformation.visibility = View.GONE
+        } else {
+            viewModel.brand.set(item.camera)
+        }
+
+        if (item.lens == null) {
+            binding.lensInformation.visibility = View.GONE
+        } else {
+            viewModel.lens.set(item.lens)
+        }
+
+        if (item.focal_length == null
+            || item.aperture == null
+            || item.shutter_speed == null
+            || item.iso == null) {
+            binding.exifInformation.visibility = View.GONE
+        } else {
+            val exif = item.focal_length+"mm f/"+item.aperture+" "+item.shutter_speed+"s ISO"+item.iso
+            viewModel.exif.set(exif)
         }
     }
 

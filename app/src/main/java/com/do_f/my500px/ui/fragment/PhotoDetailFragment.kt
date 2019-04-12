@@ -23,6 +23,7 @@ import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import com.do_f.my500px.viewmodel.SharedViewModel
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.ViewModelProviders
@@ -89,16 +90,17 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
 
         viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
         binding.vm = viewModel
-        binding.root.setOnClickListener {
-            if (!showContent) {
-                mListener?.let {
-                    it.setUIVisibility(!it.getUIVisibility())
-                    val isUIHidden : Boolean = it.getUIVisibility()
-                    binding.showUI = isUIHidden
-                    it.onViewRootClick(isUIHidden)
-                }
-            }
-        }
+        binding.showUI = false
+//        binding.root.setOnClickListener {
+//            if (!showContent) {
+//                mListener?.let {
+//                    it.setUIVisibility(!it.getUIVisibility())
+//                    val isUIHidden : Boolean = it.getUIVisibility()
+//                    binding.showUI = isUIHidden
+//                    it.onViewRootClick(isUIHidden)
+//                }
+//            }
+//        }
 
         binding.back.setOnClickListener {
             mListener?.myOnBackPress()
@@ -128,7 +130,7 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
 
     override fun onResume() {
         super.onResume()
-        binding.showUI = mListener?.getUIVisibility()
+//        binding.showUI = mListener?.getUIVisibility()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -275,7 +277,7 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
 //            if (it.getUIVisibility())
 //                it.setUIVisibility(!it.getUIVisibility())
 //            val isUIHidden : Boolean = it.getUIVisibility()
-            binding.showUI = false
+//            binding.showUI = false
         }
     }
 
