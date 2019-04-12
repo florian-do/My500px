@@ -1,15 +1,10 @@
 package com.do_f.my500px.ui.fragment
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.databinding.DataBindingUtil
+import androidx.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.constraint.ConstraintSet
-import android.support.transition.ChangeBounds
-import android.support.transition.TransitionManager
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -22,20 +17,26 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
-import com.do_f.my500px.*
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
-import com.do_f.my500px.viewmodel.SharedViewModel
-import kotlinx.android.synthetic.main.fragment_photo_detail.*
 import android.graphics.drawable.Drawable
-import android.util.Log
+import androidx.annotation.LayoutRes
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.ViewModelProviders
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
+import com.do_f.my500px.R
+import com.do_f.my500px.afterMeasured
 import com.do_f.my500px.listener.DismissEvent
+import com.do_f.my500px.setImageSizeFromRatioByHeight
+import com.do_f.my500px.setImageSizeFromRatioByWidth
 import com.do_f.my500px.ui.MainActivity
+import kotlinx.android.synthetic.main.fragment_photo_detail.*
 
 class PhotoDetailFragment : BFragment(), DismissEvent {
 

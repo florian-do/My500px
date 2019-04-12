@@ -3,16 +3,16 @@ package com.do_f.my500px.ui
 import android.animation.Animator
 import android.content.res.Resources
 import android.graphics.Color
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.view.GestureDetectorCompat
-import android.support.v4.view.MotionEventCompat
+import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.MotionEventCompat
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import androidx.appcompat.app.AppCompatActivity
 import com.do_f.my500px.App
 
 import com.do_f.my500px.R

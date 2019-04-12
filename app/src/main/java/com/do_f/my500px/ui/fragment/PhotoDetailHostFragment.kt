@@ -1,15 +1,16 @@
 package com.do_f.my500px.ui.fragment
 
-import android.arch.lifecycle.ViewModelProviders
-import android.arch.paging.PagedList
 import android.os.Bundle
-import android.support.v4.app.*
-import android.support.v4.view.ViewPager
-import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.lifecycle.ViewModelProviders
+import androidx.paging.PagedList
+import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -60,7 +61,6 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
             override fun onPageScrollStateChanged(p0: Int) { }
             override fun onPageScrolled(p0: Int, p1: Float, p2: Int) { }
             override fun onPageSelected(p0: Int) {
-                Log.d(TAG, "$p0")
                 this@PhotoDetailHostFragment.position = p0
             }
         })

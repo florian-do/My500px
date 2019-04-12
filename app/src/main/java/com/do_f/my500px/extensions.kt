@@ -1,11 +1,11 @@
 package com.do_f.my500px
 
 import android.content.res.Resources
-import android.support.design.widget.CoordinatorLayout
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.do_f.my500px.api.model.Photo
 
 fun View.setImageSizeFromRatioByWidth(max: Float, item: Photo)

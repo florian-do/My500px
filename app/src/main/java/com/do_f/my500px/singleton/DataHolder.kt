@@ -1,6 +1,6 @@
 package com.do_f.my500px.singleton
 
-import android.arch.paging.PagedList
+import androidx.paging.PagedList
 import com.do_f.my500px.api.model.Photo
 
 class DataHolder {

@@ -1,7 +1,7 @@
 package com.do_f.my500px.base
 
 import android.content.Context
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import com.do_f.my500px.R
 import com.do_f.my500px.listener.OnSystemUIListener
 

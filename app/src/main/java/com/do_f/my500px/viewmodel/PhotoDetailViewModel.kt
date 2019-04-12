@@ -1,7 +1,7 @@
 package com.do_f.my500px.viewmodel
 
-import android.arch.lifecycle.ViewModel
-import android.databinding.ObservableField
+import androidx.databinding.ObservableField
+import androidx.lifecycle.ViewModel
 
 class PhotoDetailViewModel: ViewModel() {
     val title : ObservableField<String> = ObservableField()

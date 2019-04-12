@@ -1,11 +1,12 @@
 package com.do_f.my500px.view
 
 import android.content.Context
-import android.support.annotation.IdRes
-import android.support.design.widget.CoordinatorLayout
+
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import androidx.annotation.IdRes
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 
 class BackdropBehavior : CoordinatorLayout.Behavior<View> {
 

@@ -1,13 +1,14 @@
 package com.do_f.my500px.viewmodel
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.ViewModel
-import android.arch.paging.LivePagedListBuilder
-import android.arch.paging.PagedList
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.do_f.my500px.App
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.api.service.PhotosService
 import com.do_f.my500px.datasource.ShowcaseDataSourceFactory
+
 
 class ShowcaseViewModel: ViewModel() {
 

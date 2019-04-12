@@ -1,6 +1,6 @@
 package com.do_f.my500px.datasource
 
-import android.arch.paging.DataSource
+import androidx.paging.DataSource
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.api.service.PhotosService
 

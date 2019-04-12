@@ -8,7 +8,7 @@
 		<variable name="vm" type="com.do_f.my500px.viewmodel.PhotoDetailViewModel" />
 	</data>
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/root"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
@@ -36,7 +36,7 @@
 
 		</LinearLayout>
 
-		<android.support.constraint.ConstraintLayout
+		<androidx.constraintlayout.widget.ConstraintLayout
 			android:id="@+id/content"
 			android:layout_width="0dp"
 			android:layout_height="0dp"
@@ -120,14 +120,14 @@
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/subbar">
 
-				<android.support.constraint.ConstraintLayout
+				<androidx.constraintlayout.widget.ConstraintLayout
 					android:id="@+id/extraContent"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginStart="50dp"
 					android:layout_marginEnd="50dp">
 
-					<android.support.constraint.ConstraintLayout
+					<androidx.constraintlayout.widget.ConstraintLayout
 						android:id="@+id/pictureInformation"
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
@@ -201,7 +201,7 @@
 							app:layout_constraintStart_toStartOf="parent"
 							app:layout_constraintBottom_toBottomOf="parent"/>
 
-					</android.support.constraint.ConstraintLayout>
+					</androidx.constraintlayout.widget.ConstraintLayout>
 
 					<TextView
 						android:id="@+id/description"
@@ -217,7 +217,7 @@
 						app:layout_constraintTop_toBottomOf="@+id/pictureInformation"
 						app:layout_constraintStart_toStartOf="parent"/>
 
-					<android.support.constraint.ConstraintLayout
+					<androidx.constraintlayout.widget.ConstraintLayout
 						android:id="@+id/stats_information"
 						android:layout_width="0dp"
 						android:layout_height="70dp"
@@ -283,7 +283,7 @@
 
 						</LinearLayout>
 
-					</android.support.constraint.ConstraintLayout>
+					</androidx.constraintlayout.widget.ConstraintLayout>
 
 					<LinearLayout
 						android:layout_width="0dp"
@@ -377,12 +377,11 @@
 
 					</LinearLayout>
 
-				</android.support.constraint.ConstraintLayout>
-
+				</androidx.constraintlayout.widget.ConstraintLayout>
 
 			</ScrollView>
 
-		</android.support.constraint.ConstraintLayout>
+		</androidx.constraintlayout.widget.ConstraintLayout>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
