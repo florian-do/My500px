@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.do_f.my500px.api.model.Photo
 
 fun View.setImageSizeFromRatioByWidth(max: Float, item: Photo)
@@ -56,3 +57,14 @@ val Int.dp: Int
     get() = (this / Resources.getSystem().displayMetrics.density).toInt()
 val Int.px: Int
     get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
+/**
+ * from https://github.com/Semper-Viventem/Material-backdrop
+ */
+
+fun <T : CoordinatorLayout.Behavior<*>> View.findBehavior(): T = layoutParams.run {
+    if (this !is CoordinatorLayout.LayoutParams) throw IllegalArgumentException("View's layout params should be CoordinatorLayout.LayoutParams")
+
+    (layoutParams as CoordinatorLayout.LayoutParams).behavior as? T
+        ?: throw IllegalArgumentException("Layout's behavior is not current behavior")
+}

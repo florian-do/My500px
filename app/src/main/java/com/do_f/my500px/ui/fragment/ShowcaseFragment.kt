@@ -56,14 +56,14 @@ class ShowcaseFragment : BFragment() {
         })
 
         sharedViewModel?.position?.observe(this, Observer {
-            rvFeed.scrollToPosition(it?.minus(1) ?: 0)
+            rvFeed.scrollToPosition(it ?: 0)
         })
     }
 
     private fun onPictureClick(item: Photo) {
         adapter.currentList?.let {
             DataHolder.instance.data = it
-            replace(PhotoDetailHostFragment.newInstance(item))
+            systemUIListener?.tmp(item)
         }
     }
 

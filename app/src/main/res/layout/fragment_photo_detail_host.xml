@@ -4,9 +4,9 @@
 	android:id="@+id/main_content"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/black">
+	android:background="#00000000">
 
-	<androidx.viewpager.widget.ViewPager
+	<com.do_f.my500px.view.LockViewPager
 		android:id="@+id/container"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"/>

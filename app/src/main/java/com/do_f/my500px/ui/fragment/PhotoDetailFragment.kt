@@ -33,25 +33,27 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.do_f.my500px.R
 import com.do_f.my500px.afterMeasured
+import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.setImageSizeFromRatioByHeight
 import com.do_f.my500px.setImageSizeFromRatioByWidth
+import com.do_f.my500px.ui.MainActivity
 import kotlinx.android.synthetic.main.fragment_photo_detail.*
 
-class PhotoDetailFragment : BFragment() {
+class PhotoDetailFragment : BFragment(), DismissEvent {
+
+    private val UI_STATE = "ui_state"
 
     private lateinit var item: Photo
     private lateinit var viewModel: PhotoDetailViewModel
     private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
-    private var sharedViewModel: SharedViewModel? = null
     private lateinit var binding : FragmentPhotoDetailBinding
     private var mListener: OnFragmentInteractionListener? = null
     private var position: Int = 0
     private var titleLines: Int = 0
     private var descriptionLines: Int = 0
 
-    private val constraint1 = ConstraintSet()
-    private val constraint2 = ConstraintSet()
     private var showContent = false
+    private var TAG = "PhotoDetail"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,13 +63,21 @@ class PhotoDetailFragment : BFragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(UI_STATE, showContent)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_photo_detail,
             null,
             false)
+
         binding.loading = true
+        MainActivity.isSwipeDismissEnable = true
+
         when(resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 windowWidth = Resources.getSystem().displayMetrics.heightPixels.toFloat()
@@ -75,10 +85,6 @@ class PhotoDetailFragment : BFragment() {
             Configuration.ORIENTATION_PORTRAIT -> {
                 windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
             }
-        }
-
-        sharedViewModel = activity?.run {
-            ViewModelProviders.of(this).get(SharedViewModel::class.java)
         }
 
         viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
@@ -96,7 +102,6 @@ class PhotoDetailFragment : BFragment() {
 
         binding.back.setOnClickListener {
             mListener?.myOnBackPress()
-            sharedViewModel?.set(position)
         }
 
         binding.expandContent.setOnClickListener {
@@ -126,16 +131,8 @@ class PhotoDetailFragment : BFragment() {
         binding.showUI = mListener?.getUIVisibility()
     }
 
-    override fun onStop() {
-        super.onStop()
-        sharedViewModel?.set(position)
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        constraint1.clone(root)
-        constraint2.clone(context, R.layout.fragment_photo_detail_alt)
 
         Glide.with(this).load(item.images[0].https_url)
             .listener(object : RequestListener<Drawable> {
@@ -193,11 +190,18 @@ class PhotoDetailFragment : BFragment() {
             val exif = item.focal_length+"mm f/"+item.aperture+" "+item.shutter_speed+"s ISO"+item.iso
             viewModel.exif.set(exif)
         }
+
+        if (savedInstanceState != null) {
+//            showContent = !savedInstanceState.getBoolean(UI_STATE)
+//            Log.d(TAG, "performClick${binding.expandContent.performClick()}")
+//            doAnimation(true)
+        }
     }
 
-    private fun doAnimation() {
+    private fun doAnimation(isFromInstanceState: Boolean = false) {
         when (showContent) {
             true -> {
+                MainActivity.isSwipeDismissEnable = true
                 updateConstraint(R.layout.fragment_photo_detail)
                 updateImageSize()
 
@@ -208,6 +212,11 @@ class PhotoDetailFragment : BFragment() {
                 binding.loading = false
             }
             false -> {
+                MainActivity.isSwipeDismissEnable = false
+
+                if (isFromInstanceState) {
+                    binding.toolbar.visibility = GONE
+                }
                 updateConstraint(R.layout.fragment_photo_detail_alt)
 
                 binding.extraContent.alpha = 0F
@@ -228,7 +237,7 @@ class PhotoDetailFragment : BFragment() {
 
                 when(resources.configuration.orientation) {
                     Configuration.ORIENTATION_LANDSCAPE -> {
-
+                        binding.toolbar.visibility = GONE
                     }
                     Configuration.ORIENTATION_PORTRAIT -> {
                         binding.picture.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -257,6 +266,23 @@ class PhotoDetailFragment : BFragment() {
             Configuration.ORIENTATION_PORTRAIT -> {
                 binding.picture.setImageSizeFromRatioByWidth(windowWidth, item)
             }
+        }
+    }
+
+    override fun prepareForDismissEvent() {
+        mListener?.let {
+//            Log.d(TAG, "prepareForDismissEvent: ${it.getUIVisibility()}")
+//            if (it.getUIVisibility())
+//                it.setUIVisibility(!it.getUIVisibility())
+//            val isUIHidden : Boolean = it.getUIVisibility()
+            binding.showUI = false
+        }
+    }
+
+    override fun resetDismissEvent() {
+//        Log.d(TAG, "resetDismissEvent: ")
+        mListener?.let {
+//            binding.showUI = it.getUIVisibility()
         }
     }
 

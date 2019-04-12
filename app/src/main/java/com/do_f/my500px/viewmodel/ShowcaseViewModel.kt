@@ -9,6 +9,7 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.api.service.PhotosService
 import com.do_f.my500px.datasource.ShowcaseDataSourceFactory
 
+
 class ShowcaseViewModel: ViewModel() {
 
     var data : LiveData<PagedList<Photo>>
