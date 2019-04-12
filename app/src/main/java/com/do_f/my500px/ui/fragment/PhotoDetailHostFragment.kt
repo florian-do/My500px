@@ -54,6 +54,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         systemUIListener?.isSystemUIHidden(true)
 
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
+
         container.adapter = mSectionsPagerAdapter
         container.currentItem = data.indexOf(item)
         this.position = data.indexOf(item)

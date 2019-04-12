@@ -21,6 +21,7 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
+import com.do_f.my500px.viewmodel.SharedViewModel
 import android.graphics.drawable.Drawable
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintSet
