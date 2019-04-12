@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.view.ViewPager
+import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +27,8 @@ class PhotoDetailHostFragment : BFragment() {
 
     private lateinit var item: Photo
     private lateinit var data : PagedList<Photo>
+    private var count: Int = 0
+    private var position: Int = 0
 
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
 
@@ -46,10 +51,20 @@ class PhotoDetailHostFragment : BFragment() {
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
         container.adapter = mSectionsPagerAdapter
         container.currentItem = data.indexOf(item)
+        this.position = data.indexOf(item)
+        container.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(p0: Int) { }
+            override fun onPageScrolled(p0: Int, p1: Float, p2: Int) { }
+            override fun onPageSelected(p0: Int) {
+                this@PhotoDetailHostFragment.position = p0
+            }
+        })
         container.pageMargin = resources.getDimension(R.dimen.viewpager_margin).toInt()
     }
 
-    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
+
+        private var registeredFragments : SparseArray<Fragment> = SparseArray()
 
         override fun getItem(position: Int): Fragment {
             data[position]?.let {
@@ -63,7 +78,22 @@ class PhotoDetailHostFragment : BFragment() {
         }
 
         override fun getCount(): Int {
-            return data.size
+            return this@PhotoDetailHostFragment.count
+        }
+
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
+            val f = super.instantiateItem(container, position) as Fragment
+            registeredFragments.put(position, f)
+            return f
+        }
+
+        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+            registeredFragments.remove(position)
+            super.destroyItem(container, position, `object`)
+        }
+
+        fun getRegisteredFragment(position: Int) : PhotoDetailFragment {
+            return registeredFragments[position] as PhotoDetailFragment
         }
     }
 
