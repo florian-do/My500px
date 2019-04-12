@@ -1,9 +1,9 @@
 package com.do_f.my500px.ui
 
 import android.graphics.Color
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.do_f.my500px.App
 
 import com.do_f.my500px.R
