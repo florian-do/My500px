@@ -1,9 +1,9 @@
 package com.do_f.my500px.datasource
 
-import android.arch.paging.PageKeyedDataSource
+import androidx.paging.PageKeyedDataSource
+import com.do_f.my500px.api.service.PhotosService
 import com.do_f.my500px.BuildConfig
 import com.do_f.my500px.api.model.Photo
-import com.do_f.my500px.api.service.PhotosService
 import java.io.IOException
 
 class ShowcaseDataSource(private val api: PhotosService) : PageKeyedDataSource<Int, Photo>() {

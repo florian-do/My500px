@@ -1,16 +1,15 @@
 package com.do_f.my500px.ui.fragment
 
-import android.arch.paging.PagedList
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.ViewPager
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.paging.PagedList
+import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -50,6 +49,7 @@ class PhotoDetailHostFragment : BFragment() {
         systemUIListener?.isSystemUIHidden(true)
 
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
+
         container.adapter = mSectionsPagerAdapter
         container.currentItem = data.indexOf(item)
         this.position = data.indexOf(item)
