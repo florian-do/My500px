@@ -114,7 +114,9 @@ class MainActivity : AppCompatActivity(),
         when(isHidden) {
             false -> {
                 Log.d(TAG, "lol")
-                hideSystemUI()
+            }
+            true -> {
+
             }
         }
     }

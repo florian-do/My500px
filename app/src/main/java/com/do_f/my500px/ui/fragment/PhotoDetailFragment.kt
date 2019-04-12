@@ -74,7 +74,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
             false)
 
         binding.loading = true
-        Log.d(TAG, "onCreateView: $showContent")
         MainActivity.isSwipeDismissEnable = true
 
         when(resources.configuration.orientation) {

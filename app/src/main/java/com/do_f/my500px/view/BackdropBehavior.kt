@@ -35,29 +35,15 @@ class BackdropBehavior : CoordinatorLayout.Behavior<View> {
         this.child = child
         when (dependency.id) {
             pictureViewerBackgroundId -> {
-                Log.d(TAG, "onDependentViewChanged: pictureViewerBackgroundId")
                 pictureViewerBackground = dependency
             }
             backContainerId -> {
-                Log.d(TAG, "onDependentViewChanged: backContainerId")
                 backContainer = dependency
             }
         }
 
-//        if (child.id == R.id.frontContainer) {
-//            Log.d(TAG, "frontContainerID: ")
-//        }
-//
-//        if (dependency.id == R.id.backContainer) {
-//            Log.d(TAG, "backContainer: ")
-//        }
-//
-//        if (dependency.id == R.id.pictureViewerBackground) {
-//            Log.d(TAG, "pictureBackground: ")
-//        }
-
         if (pictureViewerBackground != null && backContainer != null) {
-            Log.d(TAG, "LOAD")
+
         }
 
         return super.onDependentViewChanged(parent, child, dependency)
