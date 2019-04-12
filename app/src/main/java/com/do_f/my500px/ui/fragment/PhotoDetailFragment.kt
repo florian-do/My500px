@@ -34,7 +34,6 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 
-
 class PhotoDetailFragment : BFragment() {
 
     private lateinit var item: Photo
