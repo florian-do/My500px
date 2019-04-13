@@ -28,7 +28,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
 
 class MainActivity : AppCompatActivity(),
-    PhotoDetailFragment.OnFragmentInteractionListener,
     OnSystemUIListener, GestureDetector.OnGestureListener, DismissEvent {
 
     private val TAG = "MainActivity"
@@ -95,6 +94,8 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+
+    // TODO find something better
     private fun getPictureViewerFragment() : Fragment? {
         return supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)
     }
@@ -110,38 +111,6 @@ class MainActivity : AppCompatActivity(),
             isSystemUIHidden(false)
         }
     }
-
-
-    /**
-     * PhotoDetailFragment Listener Implementation
-     */
-
-    override fun onViewRootClick(isHidden: Boolean) {
-        when(isHidden) {
-            false -> {
-                Log.d(TAG, "lol")
-            }
-            true -> {
-
-            }
-        }
-    }
-
-    override fun getUIVisibility(): Boolean {
-        return isUIHidden
-    }
-
-    override fun setUIVisibility(isUIHidden: Boolean) {
-        this.isUIHidden = isUIHidden
-    }
-
-    override fun myOnBackPress() {
-        closePictureViewer()
-    }
-
-    /**
-     * END PhotoDetailFragment Listener Implementation
-     */
 
     override fun isSystemUIHidden(isHidden: Boolean) {
         if (isHidden) {
@@ -179,7 +148,7 @@ class MainActivity : AppCompatActivity(),
                 if (isScrolling && !isPictureViewHidden) {
                     isScrolling = false
 
-                    if (scrollOffsetWithThreshold > Resources.getSystem().displayMetrics.heightPixels / 3)
+                    if (scrollOffsetWithThreshold > Resources.getSystem().displayMetrics.heightPixels / 4)
                         closePictureViewer()
                     else
                         resetDismissEvent()
@@ -224,6 +193,11 @@ class MainActivity : AppCompatActivity(),
 
         if (deltaAbsX in MIN_SWIPE..MAX_SWIPE) {
             isSwipeDismissEnable = true
+            if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+                (getPictureViewerFragment() as PhotoDetailHostFragment).let {
+                    it.unlockMotionLayoutAnimation()
+                }
+            }
         }
         return true
     }
@@ -232,26 +206,16 @@ class MainActivity : AppCompatActivity(),
         if (isPictureViewHidden) return true
 
         return when (getSlope(p0.x, p0.y, p1.x, p1.y)) {
-            1 -> {
-                handleMotionSceneEvent(p0, p1)
-            }
-            2 -> {
-                if (isSwipeDismissEnable)
-                    isSwipeDismissEnable = false
-                true
-            }
-            3 -> {
-                handleDismissEvent(p0, p1)
-            }
-            4 -> {
-                if (isSwipeDismissEnable)
-                    isSwipeDismissEnable = false
-                true
-            } else -> true
+            1 -> handleMotionSceneEvent(p0, p1)
+            2 -> handleViewPagerEvent()
+            3 -> handleDismissEvent(p0, p1)
+            4 -> handleViewPagerEvent()
+            else -> true
         }
     }
 
     //TODO create an extension from MotionEvent
+    // https://vshivam.wordpress.com/2014/04/28/detecting-up-down-left-right-swipe-on-android/
     private fun getSlope(x1: Float, y1: Float, x2: Float, y2: Float): Int {
         val angle = Math.toDegrees(Math.atan2((y1 - y2).toDouble(), (x2 - x1).toDouble()))
 
@@ -270,6 +234,19 @@ class MainActivity : AppCompatActivity(),
     private fun handleMotionSceneEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
 //        Log.d(TAG, "up")
        return true
+    }
+
+    private fun handleViewPagerEvent() : Boolean {
+        if (isSwipeDismissEnable)
+            isSwipeDismissEnable = false
+
+        if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+            (getPictureViewerFragment() as PhotoDetailHostFragment).let {
+                it.lockMotionLayoutAnimation()
+            }
+        }
+
+        return true
     }
 
     private fun handleDismissEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {

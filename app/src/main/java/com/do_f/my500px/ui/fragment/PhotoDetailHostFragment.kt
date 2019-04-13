@@ -48,6 +48,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
     private var motionLayoutState : Int = 0
     private var sharedViewModel : SharedViewModel? = null
     private var mSectionsPagerAdapter : SectionsPagerAdapter? = null
+    private var isMotionLayoutLocked : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,15 +103,18 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
             override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
             override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
             override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-                binding.expandContent.rotation = ROTATION_END_MOTION * p3
-                binding.extraContent.alpha = p3
-                binding.informationSeparator.alpha = p3
-                mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
-                    if (it.motionLayoutReady) {
-                        it.motionLayout.progress = Math.abs(p3)
+                if (isMotionLayoutLocked) {
+                    p0?.transitionToState(p1)
+                } else {
+                    binding.expandContent.rotation = ROTATION_END_MOTION * p3
+                    binding.extraContent.alpha = p3
+                    binding.informationSeparator.alpha = p3
+                    mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
+                        if (it.motionLayoutReady) {
+                            it.motionLayout.progress = Math.abs(p3)
+                        }
                     }
                 }
-//                p0?.transitionToState(p1)
             }
 
             override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
@@ -186,6 +190,14 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
             val value : Boolean = viewModel.showUI.get() ?: true
             viewModel.showUI.set(!value)
         }
+    }
+
+    fun lockMotionLayoutAnimation() {
+        isMotionLayoutLocked = true
+    }
+
+    fun unlockMotionLayoutAnimation() {
+        isMotionLayoutLocked = false
     }
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {

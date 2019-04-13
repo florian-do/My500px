@@ -1,6 +1,5 @@
 package com.do_f.my500px.ui.fragment
 
-import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.databinding.DataBindingUtil
@@ -13,7 +12,6 @@ import com.bumptech.glide.request.RequestListener
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
-import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.constraintlayout.motion.widget.MotionLayout
@@ -28,15 +26,10 @@ import com.do_f.my500px.setImageSizeFromRatioByWidth
 class PhotoDetailFragment : BFragment(), DismissEvent {
 
     private lateinit var item: Photo
-    private lateinit var viewModel: PhotoDetailViewModel
     private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
     private lateinit var binding : FragmentPhotoDetailBinding
-    private var mListener: OnFragmentInteractionListener? = null
     private var position: Int = 0
-    private var titleLines: Int = 0
-    private var descriptionLines: Int = 0
 
-    private var showContent = false
     private var TAG = "PhotoDetail"
 
     var motionLayoutReady = false
@@ -120,25 +113,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
 
     override fun resetDismissEvent() {
 
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
-    }
-
-    interface OnFragmentInteractionListener {
-        fun onViewRootClick(isHidden: Boolean)
-        fun getUIVisibility() : Boolean
-        fun setUIVisibility(isUIHidden: Boolean)
-        fun myOnBackPress()
     }
 
     companion object {
