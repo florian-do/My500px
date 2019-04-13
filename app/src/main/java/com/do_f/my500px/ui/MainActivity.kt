@@ -196,8 +196,8 @@ class MainActivity : AppCompatActivity(),
      * mGesture implementation
      */
 
-    val MIN_SWIPE_UP = 200F
-    val MAX_SWIPE_UP = 1000F
+    val MIN_SWIPE = 200F
+    val MAX_SWIPE = 1000F
 
     override fun onShowPress(p0: MotionEvent?) { }
     override fun onLongPress(p0: MotionEvent?) { }
@@ -205,18 +205,36 @@ class MainActivity : AppCompatActivity(),
     override fun onDown(p0: MotionEvent?): Boolean = true
     override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean  {
         val deltaY : Float = p0?.y?.minus(p1?.y ?: 0F) ?: 0F
+        val deltaX : Float = p0?.x?.minus(p1?.x ?: 0F) ?: 0F
         val deltaAbsY = Math.abs(deltaY)
-        if (deltaAbsY in MIN_SWIPE_UP..MAX_SWIPE_UP && deltaY > 0) {
+        val deltaAbsX = Math.abs(deltaX)
+
+        if (deltaAbsY in MIN_SWIPE..MAX_SWIPE && deltaY > 0) {
 //            (getPictureViewerFragment() as PhotoDetailHostFragment).let {
 //                it.triggerMotionSceneAnimation()
 //            }
         }
 
+        if (deltaAbsX in MIN_SWIPE..MAX_SWIPE) {
+            if (deltaX > 0) {
+                Log.d(TAG, "Swipe left")
+            } else {
+                Log.d(TAG, "Swipe right")
+            }
+        }
         return true
     }
 
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
         if (isPictureViewHidden) return true
+
+//        Log.d(TAG, "${p2} | ${p3}")
+
+        if (p0.x > p1.x) {
+//            Log.d(TAG, "left")
+        } else {
+//            Log.d(TAG, "right")
+        }
 
         return if (p0.y > p1.y) {
             handleMotionSceneEvent(p0, p1)

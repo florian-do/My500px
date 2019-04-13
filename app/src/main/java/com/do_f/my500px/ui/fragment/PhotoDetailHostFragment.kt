@@ -46,6 +46,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
     private lateinit var viewModel: PhotoDetailViewModel
     private var sharedViewModel: SharedViewModel? = null
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+    private var oldProgress: Float = 0F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,23 +95,21 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
             }
 
             override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
-//                Log.d(TAG, "onTransitionStarted")
+                Log.d(TAG, "onTransitionStarted")
             }
 
             override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-//                expandContent.rotation = ROTATION_END_MOTION * p3
-//                mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
-//                    if (it.motionLayoutReady) {
-////                        if (it.test != null) {
-//////                            it.motionLayout.progress = Math.abs(p3)
-////                        }
-//                    }
-//                }
+                expandContent.rotation = ROTATION_END_MOTION * p3
+                extraContent.alpha = p3
+                mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
+                    if (it.motionLayoutReady) {
+                        it.motionLayout.progress = Math.abs(p3)
+                    }
+                }
 //                p0?.transitionToState(p1)
             }
 
             override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                Log.d(TAG, "$p1")
                 if (p1 == p0?.endState) {
                     MainActivity.isSwipeDismissEnable = false
                     container.isScrollEnable(false)
@@ -185,7 +184,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
             data[position]?.let {
                 Glide.with(this@PhotoDetailHostFragment)
                     .load(it.images[0].https_url)
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
                     .preload()
                 return PhotoDetailFragment.newInstance(it, position)
             }

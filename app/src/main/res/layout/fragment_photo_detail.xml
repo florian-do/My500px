@@ -7,19 +7,24 @@
 		<variable name="loading" type="Boolean" />
 	</data>
 
-	<androidx.constraintlayout.widget.ConstraintLayout
+	<!--
+	app:layoutDescription="@xml/picture_viewer_scene_02"
+	tools:showPaths="true"
+	-->
+
+	<androidx.constraintlayout.motion.widget.MotionLayout
+		android:id="@+id/motionLayout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:background="#00000000"
+		app:layoutDescription="@xml/picture_viewer_scene_02"
+		tools:showPaths="true"
 		tools:context=".ui.fragment.PhotoDetailFragment">
 
 		<ImageView
 			android:id="@+id/picture"
 			android:layout_width="50dp"
 			android:layout_height="50dp"
-			android:layout_marginBottom="8dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginStart="8dp"
 			android:visibility="@{safeUnbox(!loading)}"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
@@ -37,17 +42,5 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintTop_toTopOf="parent"/>
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="slt"
-			android:textSize="50sp"
-			android:textColor="@color/colorAccent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintTop_toTopOf="parent"/>
-
-
-	</androidx.constraintlayout.widget.ConstraintLayout>
+	</androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>
