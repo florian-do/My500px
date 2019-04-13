@@ -7,20 +7,20 @@ import androidx.viewpager.widget.ViewPager
 
 class LockViewPager : ViewPager {
 
-    private var isScrollEnable = true
+    private var isSwipeEnable = true
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
-        return when(isScrollEnable) {
+        return when(isSwipeEnable) {
             true -> super.onTouchEvent(ev)
             false -> false
         }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        return when(isScrollEnable) {
+        return when(isSwipeEnable) {
             true -> super.onInterceptTouchEvent(ev)
             false -> false
         }
@@ -29,7 +29,7 @@ class LockViewPager : ViewPager {
     /**
      * if true scroll will be enable else will not
      */
-    fun isScrollEnable(isScrollEnable: Boolean) {
-        this.isScrollEnable = isScrollEnable
+    fun isSwipeEnable(isSwipeEnable: Boolean) {
+        this.isSwipeEnable = isSwipeEnable
     }
 }

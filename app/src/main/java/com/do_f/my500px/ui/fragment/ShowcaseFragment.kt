@@ -1,5 +1,6 @@
 package com.do_f.my500px.ui.fragment
 
+import android.content.Context
 import androidx.databinding.DataBindingUtil
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,6 +27,7 @@ class ShowcaseFragment : BFragment() {
     private lateinit var binding : FragmentShowcaseBinding
     private lateinit var viewModel : ShowcaseViewModel
     private var sharedViewModel: SharedViewModel? = null
+    private var mListener: OnFragmentInteractionListener? = null
     private lateinit var adapter : ShowcaseAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -63,8 +65,24 @@ class ShowcaseFragment : BFragment() {
     private fun onPictureClick(item: Photo) {
         adapter.currentList?.let {
             DataHolder.instance.data = it
-            systemUIListener?.tmp(item)
+            mListener?.startPictureViewer(item)
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentInteractionListener) {
+            mListener = context
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        mListener = null
+    }
+
+    interface OnFragmentInteractionListener {
+        fun startPictureViewer(item: Photo)
     }
 
     companion object {

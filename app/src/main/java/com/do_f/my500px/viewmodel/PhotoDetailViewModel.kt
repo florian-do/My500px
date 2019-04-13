@@ -1,10 +1,11 @@
 package com.do_f.my500px.viewmodel
 
 import androidx.databinding.ObservableField
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class PhotoDetailViewModel: ViewModel() {
-    val showUI : ObservableField<Boolean> = ObservableField()
+    val showUI : MutableLiveData<Boolean> = MutableLiveData()
     val title : ObservableField<String> = ObservableField()
     val author : ObservableField<String> = ObservableField()
     val datetime : ObservableField<String> = ObservableField()

@@ -1,16 +1,22 @@
 package com.do_f.my500px.ui.fragment
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.graphics.ColorUtils
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedList
 import androidx.viewpager.widget.ViewPager
@@ -45,6 +51,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     private lateinit var binding : FragmentPhotoDetailHostBinding
     private lateinit var viewModel : PhotoDetailViewModel
+    private var mListener : OnFragmentInteractionListener? = null
     private var motionLayoutState : Int = 0
     private var sharedViewModel : SharedViewModel? = null
     private var mSectionsPagerAdapter : SectionsPagerAdapter? = null
@@ -64,7 +71,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(UI_STATE, viewModel.showUI.get() ?: true)
+        outState.getInt(UI_STATE, motionLayoutState)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -72,6 +79,9 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         data = DataHolder.instance.data
         count = data.size
         motionLayoutState = binding.motionLayout.startState
+        binding.back.setOnClickListener {
+            mListener?.myOnBackPress()
+        }
 
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
         container.adapter = mSectionsPagerAdapter
@@ -96,8 +106,16 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
         viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
         binding.vm = viewModel
-        viewModel.showUI.set(true)
+        viewModel.showUI.value = true
         initView(item)
+        viewModel.showUI.observe(this, Observer {
+            binding.showUI = it
+
+            if (it)
+                binding.motionLayout.visibility = VISIBLE
+            else
+                binding.motionLayout.visibility = GONE
+        })
 
         binding.motionLayout.setTransitionListener(object : MotionLayout.TransitionListener {
             override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
@@ -109,10 +127,21 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
                     binding.expandContent.rotation = ROTATION_END_MOTION * p3
                     binding.extraContent.alpha = p3
                     binding.informationSeparator.alpha = p3
-                    mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
-                        if (it.motionLayoutReady) {
-                            it.motionLayout.progress = Math.abs(p3)
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
+                            if (it.motionLayoutReady) {
+                                it.motionLayout.progress = Math.abs(p3)
+                            }
                         }
+                    } else {
+                        binding.toolbar.alpha = Math.abs(1 - p3)
+                        binding.pictureInformation.alpha = p3
+
+                        val halfAlpha = 256 / 2
+                        var toolbarAlpha = halfAlpha + (p3 * halfAlpha).toInt()
+                        if (toolbarAlpha > 255) toolbarAlpha = 255
+                        val color = ColorUtils.setAlphaComponent(resources.getColor(R.color.black_alpha50), toolbarAlpha)
+                        binding.content.setBackgroundColor(color)
                     }
                 }
             }
@@ -121,16 +150,30 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
                 motionLayoutState = p1
                 if (p1 == p0?.endState) {
                     MainActivity.isSwipeDismissEnable = false
-                    binding.container.isScrollEnable(false)
+                    binding.container.isSwipeEnable(false)
                 } else {
                     MainActivity.isSwipeDismissEnable = true
-                    binding.container.isScrollEnable(true)
+                    binding.container.isSwipeEnable(true)
                 }
             }
         })
+
+        if (savedInstanceState != null) {
+            val mlState = savedInstanceState.getInt(UI_STATE)
+//            when(mlState) {
+//                binding.motionLayout.startState -> binding.motionLayout.progress = 1F
+//                binding.motionLayout.endState -> binding.motionLayout.progress = 0F
+//            }
+        }
     }
 
     private fun initView(item: Photo) {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Glide.with(this).load(item.user.avatars.default.https)
+                .apply(RequestOptions.circleCropTransform())
+                .into(binding.toolbarAvatar!!)
+        }
+
         Glide.with(this).load(item.user.avatars.default.https)
             .apply(RequestOptions.circleCropTransform())
             .into(binding.avatar)
@@ -144,20 +187,20 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         viewModel.description.set(item.description)
 
         if (item.camera == null) {
-            binding.cameraInformation.visibility = View.GONE
+            binding.cameraInformation.visibility = GONE
         } else {
             viewModel.brand.set(item.camera)
         }
 
         if (item.lens == null) {
-            binding.lensInformation.visibility = View.GONE
+            binding.lensInformation.visibility = GONE
         } else {
             viewModel.lens.set(item.lens)
         }
 
         if (item.focal_length == null || item.aperture == null
             || item.shutter_speed == null || item.iso == null) {
-            binding.exifInformation.visibility = View.GONE
+            binding.exifInformation.visibility = GONE
         } else {
             viewModel.exif.set(getString(R.string.exif, item.focal_length, item.aperture, item.shutter_speed, item.iso))
         }
@@ -174,21 +217,21 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
     }
 
     override fun prepareForDismissEvent() {
-        viewModel.showUI.set(false)
-        container.isScrollEnable(false)
+        viewModel.showUI.value = false
+        container.isSwipeEnable(false)
         mSectionsPagerAdapter?.getRegisteredFragment(this.position)?.prepareForDismissEvent()
     }
 
     override fun resetDismissEvent() {
-        viewModel.showUI.set(true)
-        container.isScrollEnable(true)
+        viewModel.showUI.value = true
+        container.isSwipeEnable(true)
         mSectionsPagerAdapter?.getRegisteredFragment(this.position)?.resetDismissEvent()
     }
 
     fun onClickListener() {
         if (motionLayoutState == binding.motionLayout.startState) {
-            val value : Boolean = viewModel.showUI.get() ?: true
-            viewModel.showUI.set(!value)
+            val value : Boolean = viewModel.showUI.value ?: true
+            viewModel.showUI.value = !value
         }
     }
 
@@ -233,6 +276,22 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         fun getRegisteredFragment(position: Int) : PhotoDetailFragment {
             return registeredFragments[position] as PhotoDetailFragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentInteractionListener) {
+            mListener = context
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        mListener = null
+    }
+
+    interface OnFragmentInteractionListener {
+        fun myOnBackPress()
     }
 
     companion object {
