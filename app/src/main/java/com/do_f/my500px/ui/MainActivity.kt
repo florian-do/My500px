@@ -5,7 +5,6 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.MotionEventCompat
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -15,8 +14,8 @@ import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.do_f.my500px.App
-
 import com.do_f.my500px.R
+
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.findBehavior
 import com.do_f.my500px.listener.DismissEvent
@@ -76,6 +75,7 @@ class MainActivity : AppCompatActivity(),
         // You can retrieve the consumer key with BuildConfig.FIVEPX_API_KEY
     }
 
+    // @TODO replace this fonction
     override fun tmp(item: Photo) {
         frontContainer.visibility = VISIBLE
         backContainer.visibility = GONE
@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity(),
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         mDetector.onTouchEvent(event)
         if (getPictureViewerFragment() is PhotoDetailHostFragment) {
-            var fragment = getPictureViewerFragment() as PhotoDetailHostFragment
+            val fragment = getPictureViewerFragment() as PhotoDetailHostFragment
             fragment.container.dispatchTouchEvent(event)
         }
 
@@ -201,7 +201,14 @@ class MainActivity : AppCompatActivity(),
 
     override fun onShowPress(p0: MotionEvent?) { }
     override fun onLongPress(p0: MotionEvent?) { }
-    override fun onSingleTapUp(p0: MotionEvent?): Boolean = true
+    override fun onSingleTapUp(p0: MotionEvent?): Boolean {
+        if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+            (getPictureViewerFragment() as PhotoDetailHostFragment).let {
+                it.onClickListener()
+            }
+        }
+        return true
+    }
     override fun onDown(p0: MotionEvent?): Boolean = true
     override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean  {
         val deltaY : Float = p0?.y?.minus(p1?.y ?: 0F) ?: 0F
@@ -216,11 +223,7 @@ class MainActivity : AppCompatActivity(),
         }
 
         if (deltaAbsX in MIN_SWIPE..MAX_SWIPE) {
-            if (deltaX > 0) {
-                Log.d(TAG, "Swipe left")
-            } else {
-                Log.d(TAG, "Swipe right")
-            }
+            isSwipeDismissEnable = true
         }
         return true
     }
@@ -228,33 +231,45 @@ class MainActivity : AppCompatActivity(),
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
         if (isPictureViewHidden) return true
 
-//        Log.d(TAG, "${p2} | ${p3}")
-
-        if (p0.x > p1.x) {
-//            Log.d(TAG, "left")
-        } else {
-//            Log.d(TAG, "right")
-        }
-
-        return if (p0.y > p1.y) {
-            handleMotionSceneEvent(p0, p1)
-        } else {
-            // Down
-            handleDismissEvent(p0, p1)
+        return when (getSlope(p0.x, p0.y, p1.x, p1.y)) {
+            1 -> {
+                handleMotionSceneEvent(p0, p1)
+            }
+            2 -> {
+                if (isSwipeDismissEnable)
+                    isSwipeDismissEnable = false
+                true
+            }
+            3 -> {
+                handleDismissEvent(p0, p1)
+            }
+            4 -> {
+                if (isSwipeDismissEnable)
+                    isSwipeDismissEnable = false
+                true
+            } else -> true
         }
     }
 
+    //TODO create an extension from MotionEvent
+    private fun getSlope(x1: Float, y1: Float, x2: Float, y2: Float): Int {
+        val angle = Math.toDegrees(Math.atan2((y1 - y2).toDouble(), (x2 - x1).toDouble()))
+
+        if (angle > 45 && angle <= 135)
+        // top
+            return 1
+        if (angle >= 135 && angle < 180 || angle < -135 && angle > -180)
+        // left
+            return 2
+        if (angle < -45 && angle >= -135)
+        // down
+            return 3
+        return if (angle > -45 && angle <= 45) 4 else 0
+    }
+
     private fun handleMotionSceneEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
-        val f = getPictureViewerFragment() as PhotoDetailHostFragment
-        val scrollOffset = p0.y - p1.y
-//        Log.d(TAG, "$scrollOffset")
-
-
-//        Log.d(TAG, "$scrollOffset")
-//        f.motionLayout.progress = 0.5F
-
-
-        return true
+//        Log.d(TAG, "up")
+       return true
     }
 
     private fun handleDismissEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
@@ -275,7 +290,6 @@ class MainActivity : AppCompatActivity(),
                 pictureViewerBackground.alpha = backgroundAlpha
             }
 
-            Log.d(TAG, "$scrollOffsetWithThreshold")
             frontContainer.y = scrollOffsetWithThreshold
         }
         return true

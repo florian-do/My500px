@@ -4,6 +4,7 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 
 class PhotoDetailViewModel: ViewModel() {
+    val showUI : ObservableField<Boolean> = ObservableField()
     val title : ObservableField<String> = ObservableField()
     val author : ObservableField<String> = ObservableField()
     val datetime : ObservableField<String> = ObservableField()

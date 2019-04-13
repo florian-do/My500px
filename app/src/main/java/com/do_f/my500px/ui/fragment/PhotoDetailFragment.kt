@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestListener
 import com.do_f.my500px.api.model.Photo
@@ -17,14 +16,9 @@ import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import android.graphics.drawable.Drawable
 import android.util.Log
-import androidx.annotation.LayoutRes
 import androidx.constraintlayout.motion.widget.MotionLayout
 import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.ImageHeaderParser
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.RequestOptions.*
 import com.bumptech.glide.request.target.Target
 import com.do_f.my500px.R
 import com.do_f.my500px.listener.DismissEvent
@@ -32,8 +26,6 @@ import com.do_f.my500px.setImageSizeFromRatioByHeight
 import com.do_f.my500px.setImageSizeFromRatioByWidth
 
 class PhotoDetailFragment : BFragment(), DismissEvent {
-
-    private val UI_STATE = "ui_state"
 
     private lateinit var item: Photo
     private lateinit var viewModel: PhotoDetailViewModel
@@ -57,11 +49,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(UI_STATE, showContent)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(
             inflater,
@@ -82,34 +69,9 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
         binding.motionLayout?.setTransitionListener(object : MotionLayout.TransitionListener {
             override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
             override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
-            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-
-//                Log.d(TAG, ": ${p0?.startState}")
-//                Log.d(TAG, ": ${p0?.endState}")
-//
-//                if (p0?.currentState == p0?.endState) {
-//                    Log.d(TAG, "1")
-//                }
-//
-//                if (p0?.currentState == p0?.startState) {
-//                    Log.d(TAG, "2")
-//                }
-//
-//                Log.d(TAG, "${p3}")
-            }
+            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
             override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
                 binding.loading = false
-                when(p1) {
-                    p0?.startState -> {
-                        Log.d(TAG, "onTransitionChange startState: ")
-//                        if (binding != null) {
-//                            binding.picture.scaleType = null
-//                        }
-                    }
-                    p0?.endState -> {
-                        Log.d(TAG, "onTransitionChange endState: ")
-                    }
-                }
             }
         })
 

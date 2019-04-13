@@ -7,11 +7,6 @@
 		<variable name="loading" type="Boolean" />
 	</data>
 
-	<!--
-	app:layoutDescription="@xml/picture_viewer_scene_02"
-	tools:showPaths="true"
-	-->
-
 	<androidx.constraintlayout.motion.widget.MotionLayout
 		android:id="@+id/motionLayout"
 		android:layout_width="match_parent"
