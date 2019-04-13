@@ -1,4 +1,5 @@
 <resources>
 	<dimen name="viewpager_margin">8dp</dimen>
 	<dimen name="toolbar">56dp</dimen>
+	<dimen name="picture_cl_end">250dp</dimen>
 </resources>

@@ -4,38 +4,41 @@ import android.animation.Animator
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
-import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.MotionEventCompat
 import android.util.Log
+import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.do_f.my500px.App
-
 import com.do_f.my500px.R
+
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.findBehavior
 import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.listener.OnSystemUIListener
-import com.do_f.my500px.ui.fragment.PhotoDetailFragment
 import com.do_f.my500px.ui.fragment.PhotoDetailHostFragment
 import com.do_f.my500px.ui.fragment.ShowcaseFragment
 import com.do_f.my500px.view.BackdropBehavior
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
 
 class MainActivity : AppCompatActivity(),
-    PhotoDetailFragment.OnFragmentInteractionListener,
-    OnSystemUIListener, GestureDetector.OnGestureListener, DismissEvent {
+    OnSystemUIListener, GestureDetector.OnGestureListener,
+    DismissEvent, PhotoDetailHostFragment.OnFragmentInteractionListener,
+    ShowcaseFragment.OnFragmentInteractionListener{
 
     private val TAG = "MainActivity"
     private val PICTURE_VIEWER_TAG = "picture_viewer_tag"
+    private val PICTURE_VIEW_STATE = "picture_viewer_state"
     private val THRESHOLD_EVENT_DISMISS = 200F
     private val MAX_ALPHA_VALUE = 255F
+    private val MIN_SWIPE = 200F
+    private val MAX_SWIPE = 1000F
 
-    private var isUIHidden: Boolean = true
     private var isPictureViewHidden = true
     private var isScrolling = false
     private var beginYPosition : Float = 0F
@@ -71,18 +74,20 @@ class MainActivity : AppCompatActivity(),
         }
 
         mDetector = GestureDetectorCompat(this, this)
+        if (savedInstanceState != null) {
+            isPictureViewHidden = savedInstanceState.getBoolean(PICTURE_VIEW_STATE)
+            if (!isPictureViewHidden) {
+                frontContainer.visibility = VISIBLE
+                backContainer.visibility = GONE
+                pictureViewerBackground.visibility = VISIBLE
+            }
+        }
         // You can retrieve the consumer key with BuildConfig.FIVEPX_API_KEY
     }
 
-    override fun tmp(item: Photo) {
-        frontContainer.visibility = VISIBLE
-        backContainer.visibility = GONE
-        isPictureViewHidden = false
-
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.frontContainer, PhotoDetailHostFragment.newInstance(item), PICTURE_VIEWER_TAG)
-            .commitNow()
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(PICTURE_VIEW_STATE, isPictureViewHidden)
     }
 
     override fun onBackPressed() {
@@ -93,8 +98,25 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    // TODO find something better
+    private fun getPictureViewerFragment() : Fragment? {
+        return supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)
+    }
+
+    override fun startPictureViewer(item: Photo) {
+        frontContainer.visibility = VISIBLE
+        backContainer.visibility = GONE
+        pictureViewerBackground.visibility = VISIBLE
+        isPictureViewHidden = false
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.frontContainer, PhotoDetailHostFragment.newInstance(item), PICTURE_VIEWER_TAG)
+            .commitNow()
+    }
+
     private fun closePictureViewer() {
-        supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)?.let {
+        getPictureViewerFragment()?.let {
             backContainer.visibility = VISIBLE
             frontContainer.visibility = GONE
             frontContainer.y = 0F
@@ -105,36 +127,16 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-
     /**
-     * PhotoDetailFragment Listener Implementation
+     * PhotoDetailHost OnFragmentInteraction Implementation
      */
-
-    override fun onViewRootClick(isHidden: Boolean) {
-        when(isHidden) {
-            false -> {
-                Log.d(TAG, "lol")
-            }
-            true -> {
-
-            }
-        }
-    }
-
-    override fun getUIVisibility(): Boolean {
-        return isUIHidden
-    }
-
-    override fun setUIVisibility(isUIHidden: Boolean) {
-        this.isUIHidden = isUIHidden
-    }
 
     override fun myOnBackPress() {
         closePictureViewer()
     }
 
     /**
-     * END PhotoDetailFragment Listener Implementation
+     * BFragment Implementation
      */
 
     override fun isSystemUIHidden(isHidden: Boolean) {
@@ -163,14 +165,18 @@ class MainActivity : AppCompatActivity(),
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         mDetector.onTouchEvent(event)
+        if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+            val fragment = getPictureViewerFragment() as PhotoDetailHostFragment
+            fragment.container.dispatchTouchEvent(event)
 
-        val action: Int = MotionEventCompat.getActionMasked(event)
-        when (action) {
+        }
+
+        when (event?.action) {
             MotionEvent.ACTION_UP -> {
                 if (isScrolling && !isPictureViewHidden) {
                     isScrolling = false
 
-                    if (scrollOffsetWithThreshold > Resources.getSystem().displayMetrics.heightPixels / 3)
+                    if (scrollOffsetWithThreshold > Resources.getSystem().displayMetrics.heightPixels / 3.5)
                         closePictureViewer()
                     else
                         resetDismissEvent()
@@ -189,13 +195,83 @@ class MainActivity : AppCompatActivity(),
 
     override fun onShowPress(p0: MotionEvent?) { }
     override fun onLongPress(p0: MotionEvent?) { }
-    override fun onSingleTapUp(p0: MotionEvent?): Boolean = true
+    override fun onSingleTapUp(p0: MotionEvent?): Boolean {
+        val y : Float = p0?.y ?: 0F
+        if (y > getToolbarHeight()) {
+            if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+                (getPictureViewerFragment() as PhotoDetailHostFragment).onClickListener()
+            }
+        }
+        return true
+    }
     override fun onDown(p0: MotionEvent?): Boolean = true
-    override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean = true
+    override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean  {
+        val deltaY : Float = p0?.y?.minus(p1?.y ?: 0F) ?: 0F
+        val deltaX : Float = p0?.x?.minus(p1?.x ?: 0F) ?: 0F
+        val deltaAbsY = Math.abs(deltaY)
+        val deltaAbsX = Math.abs(deltaX)
+
+        if (deltaAbsY in MIN_SWIPE..MAX_SWIPE && deltaY > 0) {
+//            (getPictureViewerFragment() as PhotoDetailHostFragment).let {
+//                it.triggerMotionSceneAnimation()
+//            }
+        }
+
+        // Swipe left or right
+        if (deltaAbsX in MIN_SWIPE..MAX_SWIPE) {
+            isSwipeDismissEnable = true
+            if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+                (getPictureViewerFragment() as PhotoDetailHostFragment).unlockMotionLayoutAnimation()
+            }
+        }
+        return true
+    }
 
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
         if (isPictureViewHidden) return true
-        if (p0.y > p1.y) return true
+
+        return when (getSlope(p0.x, p0.y, p1.x, p1.y)) {
+            1 -> handleMotionSceneEvent(p0, p1)
+            2 -> handleViewPagerEvent()
+            3 -> handleDismissEvent(p0, p1)
+            4 -> handleViewPagerEvent()
+            else -> true
+        }
+    }
+
+    //TODO create an extension from MotionEvent
+    // https://vshivam.wordpress.com/2014/04/28/detecting-up-down-left-right-swipe-on-android/
+    private fun getSlope(x1: Float, y1: Float, x2: Float, y2: Float): Int {
+        val angle = Math.toDegrees(Math.atan2((y1 - y2).toDouble(), (x2 - x1).toDouble()))
+
+        if (angle > 45 && angle <= 135)
+        // top
+            return 1
+        if (angle >= 135 && angle < 180 || angle < -135 && angle > -180)
+        // left
+            return 2
+        if (angle < -45 && angle >= -135)
+        // down
+            return 3
+        return if (angle > -45 && angle <= 45) 4 else 0
+    }
+
+    private fun handleMotionSceneEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
+       return true
+    }
+
+    private fun handleViewPagerEvent() : Boolean {
+        if (isSwipeDismissEnable)
+            isSwipeDismissEnable = false
+
+        if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+            (getPictureViewerFragment() as PhotoDetailHostFragment).lockMotionLayoutAnimation()
+        }
+
+        return true
+    }
+
+    private fun handleDismissEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
         if (p0.y <= getToolbarHeight()) return true
         if (beginYPosition == 0F) beginYPosition = frontContainer.y
 
@@ -218,11 +294,12 @@ class MainActivity : AppCompatActivity(),
         return true
     }
 
+
     override fun prepareForDismissEvent() {
         pictureViewerBackground.visibility = VISIBLE
         backContainer.visibility = VISIBLE
         isScrolling = true
-        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        val f = getPictureViewerFragment() as PhotoDetailHostFragment
         f.prepareForDismissEvent()
     }
 
@@ -241,7 +318,7 @@ class MainActivity : AppCompatActivity(),
                 }
             })
             .start()
-        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        val f = getPictureViewerFragment() as PhotoDetailHostFragment
         f.resetDismissEvent()
     }
 
