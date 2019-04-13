@@ -1,7 +1,5 @@
 package com.do_f.my500px.ui.fragment
 
-import android.content.res.Configuration
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
@@ -17,12 +15,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedList
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
@@ -30,9 +24,11 @@ import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailHostBinding
 import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.singleton.DataHolder
+import com.do_f.my500px.ui.MainActivity
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import com.do_f.my500px.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
+import kotlinx.android.synthetic.main.fragment_photo_detail_host.motionLayout
 
 class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
@@ -43,6 +39,8 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
     private lateinit var data : PagedList<Photo>
     private var count: Int = 0
     private var position: Int = 0
+
+    private val ROTATION_END_MOTION = 180
 
     private lateinit var binding : FragmentPhotoDetailHostBinding
     private lateinit var viewModel: PhotoDetailViewModel
@@ -96,19 +94,36 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
             }
 
             override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
-                Log.d(TAG, "onTransitionStarted")
+//                Log.d(TAG, "onTransitionStarted")
             }
 
             override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-                Log.d(TAG, "onTransitionChange -> $p3")
-                p0?.transitionToState(p1)
+//                expandContent.rotation = ROTATION_END_MOTION * p3
+//                mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
+//                    if (it.motionLayoutReady) {
+////                        if (it.test != null) {
+//////                            it.motionLayout.progress = Math.abs(p3)
+////                        }
+//                    }
+//                }
+//                p0?.transitionToState(p1)
             }
 
             override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                if (p1 == R.layout.motion_scene_picture_viewer_end)
-                    Log.d(TAG, "onTransitionCompleted -> $p1")
+                Log.d(TAG, "$p1")
+                if (p1 == p0?.endState) {
+                    MainActivity.isSwipeDismissEnable = false
+                    container.isScrollEnable(false)
+                } else {
+                    MainActivity.isSwipeDismissEnable = true
+                    container.isScrollEnable(true)
+                }
             }
         })
+    }
+
+    fun triggerMotionSceneAnimation() {
+
     }
 
     private fun setupView() {

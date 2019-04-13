@@ -56,6 +56,8 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
     private var showContent = false
     private var TAG = "PhotoDetail"
 
+    var motionLayoutReady = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -77,7 +79,7 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
             false)
 
         binding.loading = true
-        MainActivity.isSwipeDismissEnable = true
+//        MainActivity.isSwipeDismissEnable = true
 
         when(resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
@@ -88,9 +90,9 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
             }
         }
 
-        viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
-        binding.vm = viewModel
-        binding.showUI = false
+//        viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
+//        binding.vm = viewModel
+//        binding.showUI = false
 //        binding.root.setOnClickListener {
 //            if (!showContent) {
 //                mListener?.let {
@@ -102,13 +104,13 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
 //            }
 //        }
 
-        binding.back.setOnClickListener {
-            mListener?.myOnBackPress()
-        }
-
-        binding.expandContent.setOnClickListener {
-            doAnimation()
-        }
+//        binding.back.setOnClickListener {
+//            mListener?.myOnBackPress()
+//        }
+//
+//        binding.expandContent.setOnClickListener {
+//            doAnimation()
+//        }
 
         updateImageSize()
         Glide.with(this)
@@ -116,14 +118,14 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
             .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
             .preload()
 
-        binding.title.afterMeasured {
-            titleLines = lineCount
-            setLines(1)
-        }
-
-        binding.description.setOnClickListener {
-            binding.description.setLines(descriptionLines)
-        }
+//        binding.title.afterMeasured {
+//            titleLines = lineCount
+//            setLines(1)
+//        }
+//
+//        binding.description.setOnClickListener {
+//            binding.description.setLines(descriptionLines)
+//        }
 
         return binding.root
     }
@@ -145,53 +147,56 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
                 override fun onResourceReady(
                     resource: Drawable?, model: Any?,
                     target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    Log.d(TAG, "slt")
                     binding.loading = false
                     return false
                 }
             })
             .into(binding.picture)
 
-        Glide.with(this).load(item.user.avatars.default.https)
-            .apply(RequestOptions.circleCropTransform())
-            .into(binding.avatar)
-
-        when(resources.configuration.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> {
-                Glide.with(this).load(item.user.avatars.default.https)
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(binding.toolbarAvatar!!)
-            }
-        }
-
-        viewModel.author.set(item.user.fullname)
-        viewModel.title.set(item.name)
-        viewModel.commentsCounts.set(item.comments_count.toString())
-        viewModel.likesCounts.set(item.votes_count.toString())
-        viewModel.pulse.set(item.rating.toString())
-        viewModel.views.set(item.times_viewed.toString())
-        viewModel.description.set(item.description)
-
-        if (item.camera == null) {
-            binding.cameraInformation.visibility = GONE
-        } else {
-            viewModel.brand.set(item.camera)
-        }
-
-        if (item.lens == null) {
-            binding.lensInformation.visibility = GONE
-        } else {
-            viewModel.lens.set(item.lens)
-        }
-
-        if (item.focal_length == null
-            || item.aperture == null
-            || item.shutter_speed == null
-            || item.iso == null) {
-            binding.exifInformation.visibility = GONE
-        } else {
-            val exif = item.focal_length+"mm f/"+item.aperture+" "+item.shutter_speed+"s ISO"+item.iso
-            viewModel.exif.set(exif)
-        }
+        motionLayoutReady = true
+//
+//        Glide.with(this).load(item.user.avatars.default.https)
+//            .apply(RequestOptions.circleCropTransform())
+//            .into(binding.avatar)
+//
+//        when(resources.configuration.orientation) {
+//            Configuration.ORIENTATION_LANDSCAPE -> {
+//                Glide.with(this).load(item.user.avatars.default.https)
+//                    .apply(RequestOptions.circleCropTransform())
+//                    .into(binding.toolbarAvatar!!)
+//            }
+//        }
+//
+//        viewModel.author.set(item.user.fullname)
+//        viewModel.title.set(item.name)
+//        viewModel.commentsCounts.set(item.comments_count.toString())
+//        viewModel.likesCounts.set(item.votes_count.toString())
+//        viewModel.pulse.set(item.rating.toString())
+//        viewModel.views.set(item.times_viewed.toString())
+//        viewModel.description.set(item.description)
+//
+//        if (item.camera == null) {
+//            binding.cameraInformation.visibility = GONE
+//        } else {
+//            viewModel.brand.set(item.camera)
+//        }
+//
+//        if (item.lens == null) {
+//            binding.lensInformation.visibility = GONE
+//        } else {
+//            viewModel.lens.set(item.lens)
+//        }
+//
+//        if (item.focal_length == null
+//            || item.aperture == null
+//            || item.shutter_speed == null
+//            || item.iso == null) {
+//            binding.exifInformation.visibility = GONE
+//        } else {
+//            val exif = item.focal_length+"mm f/"+item.aperture+" "+item.shutter_speed+"s ISO"+item.iso
+//            viewModel.exif.set(exif)
+//        }
 
         if (savedInstanceState != null) {
 //            showContent = !savedInstanceState.getBoolean(UI_STATE)
@@ -200,64 +205,64 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
         }
     }
 
-    private fun doAnimation(isFromInstanceState: Boolean = false) {
-        when (showContent) {
-            true -> {
-                MainActivity.isSwipeDismissEnable = true
-                updateConstraint(R.layout.fragment_photo_detail)
-                updateImageSize()
-
-                binding.extraContent.animate().alpha(0F).setDuration(300).start()
-                binding.informationSperator.visibility = GONE
-                binding.expandContent.setImageResource(R.drawable.ic_expand_less)
-                binding.title.setLines(1)
-                binding.loading = false
-            }
-            false -> {
-                MainActivity.isSwipeDismissEnable = false
-
-                if (isFromInstanceState) {
-                    binding.toolbar.visibility = GONE
-                }
-                updateConstraint(R.layout.fragment_photo_detail_alt)
-
-                binding.extraContent.alpha = 0F
-                binding.extraContent.visibility = VISIBLE
-                binding.extraContent.animate().alpha(1F).setDuration(300).start()
-                binding.title.setLines(titleLines)
-                binding.description.afterMeasured {
-                    descriptionLines = lineCount
-                    if (lineCount > 3)
-                        setLines(3)
-                    else
-                        setLines(lineCount)
-                }
-
-                binding.description.ellipsize = TextUtils.TruncateAt.END
-                binding.informationSperator.visibility = VISIBLE
-                binding.expandContent.setImageResource(R.drawable.ic_expand_more)
-
-                when(resources.configuration.orientation) {
-                    Configuration.ORIENTATION_LANDSCAPE -> {
-                        binding.toolbar.visibility = GONE
-                    }
-                    Configuration.ORIENTATION_PORTRAIT -> {
-                        binding.picture.scaleType = ImageView.ScaleType.CENTER_CROP
-                    }
-                }
-            }
-        }
-
-        showContent = !showContent
-    }
+//    private fun doAnimation(isFromInstanceState: Boolean = false) {
+//        when (showContent) {
+//            true -> {
+//                MainActivity.isSwipeDismissEnable = true
+//                updateConstraint(R.layout.fragment_photo_detail)
+//                updateImageSize()
+//
+//                binding.extraContent.animate().alpha(0F).setDuration(300).start()
+//                binding.informationSperator.visibility = GONE
+//                binding.expandContent.setImageResource(R.drawable.ic_expand_less)
+//                binding.title.setLines(1)
+//                binding.loading = false
+//            }
+//            false -> {
+//                MainActivity.isSwipeDismissEnable = false
+//
+//                if (isFromInstanceState) {
+//                    binding.toolbar.visibility = GONE
+//                }
+//                updateConstraint(R.layout.fragment_photo_detail_alt)
+//
+//                binding.extraContent.alpha = 0F
+//                binding.extraContent.visibility = VISIBLE
+//                binding.extraContent.animate().alpha(1F).setDuration(300).start()
+//                binding.title.setLines(titleLines)
+//                binding.description.afterMeasured {
+//                    descriptionLines = lineCount
+//                    if (lineCount > 3)
+//                        setLines(3)
+//                    else
+//                        setLines(lineCount)
+//                }
+//
+//                binding.description.ellipsize = TextUtils.TruncateAt.END
+//                binding.informationSperator.visibility = VISIBLE
+//                binding.expandContent.setImageResource(R.drawable.ic_expand_more)
+//
+//                when(resources.configuration.orientation) {
+//                    Configuration.ORIENTATION_LANDSCAPE -> {
+//                        binding.toolbar.visibility = GONE
+//                    }
+//                    Configuration.ORIENTATION_PORTRAIT -> {
+//                        binding.picture.scaleType = ImageView.ScaleType.CENTER_CROP
+//                    }
+//                }
+//            }
+//        }
+//
+//        showContent = !showContent
+//    }
 
     private fun updateConstraint(@LayoutRes id: Int) {
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(context, id)
-        constraintSet.applyTo(root)
-        val transition = ChangeBounds()
-        transition.interpolator = DecelerateInterpolator()
-        TransitionManager.beginDelayedTransition(root, transition)
+//        val constraintSet = ConstraintSet()
+//        constraintSet.clone(context, id)
+//        constraintSet.applyTo(root)
+//        val transition = ChangeBounds()
+//        transition.interpolator = DecelerateInterpolator()
+//        TransitionManager.beginDelayedTransition(root, transition)
     }
 
     private fun updateImageSize() {

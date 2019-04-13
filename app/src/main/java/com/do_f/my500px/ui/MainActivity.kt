@@ -13,6 +13,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.do_f.my500px.App
 
 import com.do_f.my500px.R
@@ -94,8 +95,12 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    private fun getPictureViewerFragment() : Fragment? {
+        return supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)
+    }
+
     private fun closePictureViewer() {
-        supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)?.let {
+        getPictureViewerFragment()?.let {
             backContainer.visibility = VISIBLE
             frontContainer.visibility = GONE
             frontContainer.y = 0F
@@ -164,14 +169,12 @@ class MainActivity : AppCompatActivity(),
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         mDetector.onTouchEvent(event)
-        if (supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) is PhotoDetailHostFragment) {
-            var fragment = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        if (getPictureViewerFragment() is PhotoDetailHostFragment) {
+            var fragment = getPictureViewerFragment() as PhotoDetailHostFragment
             fragment.container.dispatchTouchEvent(event)
         }
 
-
-        val action: Int = MotionEventCompat.getActionMasked(event)
-        when (action) {
+        when (event?.action) {
             MotionEvent.ACTION_UP -> {
                 if (isScrolling && !isPictureViewHidden) {
                     isScrolling = false
@@ -193,11 +196,24 @@ class MainActivity : AppCompatActivity(),
      * mGesture implementation
      */
 
+    val MIN_SWIPE_UP = 200F
+    val MAX_SWIPE_UP = 1000F
+
     override fun onShowPress(p0: MotionEvent?) { }
     override fun onLongPress(p0: MotionEvent?) { }
     override fun onSingleTapUp(p0: MotionEvent?): Boolean = true
     override fun onDown(p0: MotionEvent?): Boolean = true
-    override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean = true
+    override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean  {
+        val deltaY : Float = p0?.y?.minus(p1?.y ?: 0F) ?: 0F
+        val deltaAbsY = Math.abs(deltaY)
+        if (deltaAbsY in MIN_SWIPE_UP..MAX_SWIPE_UP && deltaY > 0) {
+//            (getPictureViewerFragment() as PhotoDetailHostFragment).let {
+//                it.triggerMotionSceneAnimation()
+//            }
+        }
+
+        return true
+    }
 
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
         if (isPictureViewHidden) return true
@@ -211,7 +227,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun handleMotionSceneEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
-        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        val f = getPictureViewerFragment() as PhotoDetailHostFragment
         val scrollOffset = p0.y - p1.y
 //        Log.d(TAG, "$scrollOffset")
 
@@ -241,6 +257,7 @@ class MainActivity : AppCompatActivity(),
                 pictureViewerBackground.alpha = backgroundAlpha
             }
 
+            Log.d(TAG, "$scrollOffsetWithThreshold")
             frontContainer.y = scrollOffsetWithThreshold
         }
         return true
@@ -251,7 +268,7 @@ class MainActivity : AppCompatActivity(),
         pictureViewerBackground.visibility = VISIBLE
         backContainer.visibility = VISIBLE
         isScrolling = true
-        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        val f = getPictureViewerFragment() as PhotoDetailHostFragment
         f.prepareForDismissEvent()
     }
 
@@ -270,7 +287,7 @@ class MainActivity : AppCompatActivity(),
                 }
             })
             .start()
-        val f = supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG) as PhotoDetailHostFragment
+        val f = getPictureViewerFragment() as PhotoDetailHostFragment
         f.resetDismissEvent()
     }
 
