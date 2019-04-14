@@ -30,8 +30,8 @@
 				tools:listitem="@layout/adapter_comment"/>
 
 			<ProgressBar
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
+				android:layout_width="60dp"
+				android:layout_height="60dp"
 				android:visibility="@{safeUnbox(loading)}"
 				android:progressBackgroundTint="@color/colorAccent"
 				app:layout_constraintEnd_toEndOf="parent"
