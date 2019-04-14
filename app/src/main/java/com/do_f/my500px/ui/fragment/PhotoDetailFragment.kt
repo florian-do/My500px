@@ -91,7 +91,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
                 }
             })
             .into(binding.picture)
-
         motionLayoutReady = true
     }
 

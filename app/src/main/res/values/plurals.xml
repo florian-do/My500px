@@ -9,4 +9,9 @@
 		<item quantity="one">%d minute ago</item>
 		<item quantity="other">%d minutes ago</item>
 	</plurals>
+
+	<plurals name="comment">
+		<item quantity="one">%d comment</item>
+		<item quantity="other">%d comments</item>
+	</plurals>
 </resources>

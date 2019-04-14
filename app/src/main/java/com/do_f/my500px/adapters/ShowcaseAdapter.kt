@@ -46,6 +46,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         getItem(p1)?.let { item ->
+            Log.d(TAG, "ID : ${item.id}")
             var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
             when(orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {

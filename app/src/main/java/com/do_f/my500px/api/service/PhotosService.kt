@@ -13,6 +13,7 @@ interface PhotosService {
     fun getPhotos(@Query("consumer_key") key: String,
                   @Query("feature") feature: String,
                   @Query("image_size") imageSize: Int,
+                  @Query("tags") tag: Int,
                   @Query("page") page: Int) : Call<ShowcaseResponse>
 
     @GET("photos/{id}/comments")

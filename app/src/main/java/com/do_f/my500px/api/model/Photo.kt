@@ -59,6 +59,7 @@ data class Photo(
     val status: Int,
     val store_height: Int,
     val store_width: Int,
+    val tags: List<String>,
     val taken_at: Any,
     val times_viewed: Int,
     val url: String,

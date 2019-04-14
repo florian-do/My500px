@@ -32,7 +32,7 @@ class ShowcaseDataSource(private val api: PhotosService) : PageKeyedDataSource<I
 
     private fun callApi(page: Int, callback: (List<Photo>, nextPage: Int) -> Unit) {
         try {
-            val response = api.getPhotos(BuildConfig.FIVEPX_API_KEY, "popular", 4, page).execute()
+            val response = api.getPhotos(BuildConfig.FIVEPX_API_KEY, "popular", 4, 1, page).execute()
 
             response.body()?.let {
                 callback(it.photos, it.current_page + 1)
