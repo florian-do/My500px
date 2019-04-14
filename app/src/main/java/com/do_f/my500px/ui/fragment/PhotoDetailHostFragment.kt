@@ -25,6 +25,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 
 import com.do_f.my500px.R
+import com.do_f.my500px.adapters.TagAdapter
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailHostBinding
@@ -33,6 +34,9 @@ import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.MainActivity
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
 import com.do_f.my500px.viewmodel.SharedViewModel
+import com.google.android.flexbox.FlexWrap
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.motionLayout
 
@@ -185,6 +189,20 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         viewModel.pulse.set(item.rating.toString())
         viewModel.views.set(item.times_viewed.toString())
         viewModel.description.set(item.description)
+
+        val adapter = TagAdapter()
+        adapter.items = item.tags
+        val layoutManager = object : FlexboxLayoutManager(context) {
+            override fun canScrollVertically(): Boolean {
+                return false
+            }
+        }
+        layoutManager.flexWrap = FlexWrap.WRAP
+        layoutManager.justifyContent = JustifyContent.FLEX_START
+
+        binding.tagsFeed?.adapter = adapter
+        binding.tagsFeed?.layoutManager = layoutManager
+        binding.tagsFeed?.isNestedScrollingEnabled = true
 
         if (item.camera == null) {
             binding.cameraInformation.visibility = GONE
