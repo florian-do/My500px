@@ -27,7 +27,8 @@ import com.do_f.my500px.setImageSizeFromRatioByWidth
 
 class ShowcaseAdapter(private val glide: RequestManager,
                       private val orientation: Int,
-                      private val mListener: (Photo) -> Unit)
+                      private val mListener: (Photo) -> Unit,
+                      private val commentListener: (Int, Int) -> Unit)
     : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
 
     val TAG = "Adapter"
@@ -82,6 +83,10 @@ class ShowcaseAdapter(private val glide: RequestManager,
 
             p0.binding.picture.setOnClickListener {
                 mListener.invoke(item)
+            }
+
+            p0.binding.commentView?.setOnClickListener {
+                commentListener.invoke(item.id, item.comments_count)
             }
         }
     }
