@@ -1,12 +1,21 @@
 package com.do_f.my500px
 
 import android.content.res.Resources
+import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.do_f.my500px.api.model.Photo
+import java.text.SimpleDateFormat
+import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 fun View.setImageSizeFromRatioByWidth(max: Float, item: Photo)
         : ViewGroup.LayoutParams? = layoutParams.apply {
@@ -39,6 +48,36 @@ fun Photo.getRatio(): Float {
         (width.toFloat() / height.toFloat())
     else
         (height.toFloat() / width.toFloat())
+}
+
+fun String.parseDate(r : Resources) : String {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val commentDate = LocalDateTime.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val date = LocalDate.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val period = Period.between(date, LocalDate.now())
+
+        if (period.isZero) {
+            val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val timeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
+            val oldDate = timeFormat.parse(commentDate.format(timeFormatter))
+            val currentDate = Date()
+
+            val diff = currentDate.time - oldDate.time
+            val seconds = diff / 1000
+            val minutes = seconds / 60
+            val hours = minutes / 60
+
+            return if (hours == 0L) {
+                r.getQuantityString(R.plurals.time_minute, minutes.toInt(), minutes)
+            } else {
+                r.getQuantityString(R.plurals.time_hour, hours.toInt(), hours)
+            }
+        } else {
+            val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
+            return commentDate.format(formatter)
+        }
+    }
+    return ""
 }
 
 inline fun <T: TextView> T.afterMeasured(crossinline onFinished: T.() -> Unit)  {

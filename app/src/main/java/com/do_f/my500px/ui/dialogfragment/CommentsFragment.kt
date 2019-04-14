@@ -44,6 +44,7 @@ class CommentsFragment : BDialogFragment() {
         viewModel = ViewModelProviders.of(this).get(CommentsViewModel::class.java)
         var startPage = (commentsCount / 20)
         if ((commentsCount % 20) != 0) startPage++
+        Log.d(TAG, "createVIew: ${pictureId}")
         viewModel.init(pictureId, startPage)
         return inflater.inflate(R.layout.fragment_comments, container, false)
     }
@@ -52,7 +53,6 @@ class CommentsFragment : BDialogFragment() {
         super.onActivityCreated(savedInstanceState)
 
         val lm = LinearLayoutManager(context)
-        lm.stackFromEnd = true
         lm.reverseLayout = true
         rvFeed.layoutManager = lm
         rvFeed.adapter = adapter
@@ -62,7 +62,6 @@ class CommentsFragment : BDialogFragment() {
             adapter.submitList(it)
         })
     }
-
 
     companion object {
         @JvmStatic

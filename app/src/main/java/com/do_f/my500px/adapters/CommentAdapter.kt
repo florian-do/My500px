@@ -1,5 +1,6 @@
 package com.do_f.my500px.adapters
 
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -13,6 +14,13 @@ import com.bumptech.glide.request.RequestOptions
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Comment
 import com.do_f.my500px.databinding.AdapterCommentBinding
+import com.do_f.my500px.parseDate
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class CommentAdapter(private val glide: RequestManager,
@@ -33,7 +41,6 @@ class CommentAdapter(private val glide: RequestManager,
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         getItem(p1)?.let { item ->
-
             glide.load(item.user.avatars.default.https)
                 .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.ALL))
                 .apply(RequestOptions.circleCropTransform())
@@ -41,7 +48,7 @@ class CommentAdapter(private val glide: RequestManager,
 
             p0.binding.comment.text = item.body
             p0.binding.name.text = item.user.fullname
-            p0.binding.timestamp.text = item.created_at
+            p0.binding.timestamp.text = item.created_at.parseDate(p0.binding.timestamp.resources)
         }
     }
 
