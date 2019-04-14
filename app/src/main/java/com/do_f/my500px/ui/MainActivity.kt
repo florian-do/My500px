@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent

@@ -86,13 +86,11 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
                 override fun onResourceReady(
                     resource: Drawable?, model: Any?,
                     target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                    Log.d(TAG, "onResourceReady")
                     binding.loading = false
                     return false
                 }
             })
             .into(binding.picture)
-
         motionLayoutReady = true
     }
 

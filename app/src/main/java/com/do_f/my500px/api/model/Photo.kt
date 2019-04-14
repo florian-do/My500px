@@ -59,6 +59,7 @@ data class Photo(
     val status: Int,
     val store_height: Int,
     val store_width: Int,
+    val tags: List<String>,
     val taken_at: Any,
     val times_viewed: Int,
     val url: String,
@@ -68,24 +69,6 @@ data class Photo(
     val votes_count: Int,
     val watermark: Boolean,
     val width: Int
-) : Serializable
-
-data class User(
-    val affection: Int,
-    val avatars: Avatars,
-    val city: String,
-    val country: String,
-    val cover_url: String,
-    val firstname: String,
-    val fullname: String,
-    val id: Int,
-    val lastname: String,
-    val store_on: Boolean,
-    val upgrade_status: Int,
-    val username: String,
-    val userpic_https_url: String,
-    val userpic_url: String,
-    val usertype: Int
 ) : Serializable
 
 data class Avatars(

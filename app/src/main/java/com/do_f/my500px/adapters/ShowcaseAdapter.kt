@@ -22,12 +22,14 @@ import com.bumptech.glide.request.target.Target
 import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.databinding.AdapterShowcaseBinding
+import com.do_f.my500px.parseDate
 import com.do_f.my500px.px
 import com.do_f.my500px.setImageSizeFromRatioByWidth
 
 class ShowcaseAdapter(private val glide: RequestManager,
                       private val orientation: Int,
-                      private val mListener: (Photo) -> Unit)
+                      private val mListener: (Photo) -> Unit,
+                      private val commentListener: (Int, Int) -> Unit)
     : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
 
     val TAG = "Adapter"
@@ -44,6 +46,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         getItem(p1)?.let { item ->
+            Log.d(TAG, "ID : ${item.id}")
             var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
             when(orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
@@ -51,6 +54,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
                 }
             }
 
+            p0.binding.datetime.text = item.created_at.parseDate(p0.binding.datetime.resources)
             p0.binding.picture.setImageSizeFromRatioByWidth(windowWidth, item)
             p0.binding.title.text = item.name
             p0.binding.likesCount.text = item.votes_count.toString()
@@ -82,6 +86,10 @@ class ShowcaseAdapter(private val glide: RequestManager,
 
             p0.binding.picture.setOnClickListener {
                 mListener.invoke(item)
+            }
+
+            p0.binding.commentView?.setOnClickListener {
+                commentListener.invoke(item.id, item.comments_count)
             }
         }
     }
