@@ -3,6 +3,7 @@ package com.do_f.my500px.ui.fragment
 import android.content.Context
 import androidx.databinding.DataBindingUtil
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
@@ -100,6 +101,7 @@ class ShowcaseFragment : BFragment() {
         })
 
         binding.swipeRefresh.setOnRefreshListener {
+            binding.error.visibility = GONE
             refreshDatasource()
         }
 

@@ -13,20 +13,6 @@
 			motion:touchAnchorSide="top"
 			motion:dragDirection="dragUp" />
 
-		<KeyFrameSet>
-
-			<KeyAttribute
-				motion:framePosition="0"
-				motion:motionTarget="@id/extraContent"
-				android:alpha="0" />
-
-			<KeyAttribute
-				motion:framePosition="100"
-				motion:motionTarget="@id/extraContent"
-				android:alpha="1" />
-
-		</KeyFrameSet>
-
 	</Transition>
 
 	<ConstraintSet android:id="@+id/collapsed">

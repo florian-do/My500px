@@ -3,74 +3,70 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:sample="http://schemas.android.com/tools">
 
-	<LinearLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<androidx.constraintlayout.widget.ConstraintLayout
+		<View
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="66dp"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"/>
 
-			<View
-				android:layout_width="match_parent"
-				android:layout_height="66dp"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintBottom_toBottomOf="parent"/>
+		<ImageView
+			android:id="@+id/avatar"
+			android:layout_width="35dp"
+			android:layout_height="35dp"
+			android:layout_marginTop="8dp"
+			android:layout_marginStart="16dp"
+			android:src="@drawable/sample_avatar"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			sample:ignore="ContentDescription"/>
 
-			<ImageView
-				android:id="@+id/avatar"
-				android:layout_width="35dp"
-				android:layout_height="35dp"
-				android:layout_marginTop="8dp"
-				android:layout_marginStart="16dp"
-				android:src="@drawable/sample_avatar"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				sample:ignore="ContentDescription"/>
+		<TextView
+			android:id="@+id/name"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:layout_marginStart="8dp"
+			android:textColor="@color/black"
+			android:textStyle="bold"
+			sample:text="Do Florian"
+			app:layout_constraintEnd_toStartOf="@id/timestamp"
+			app:layout_constraintStart_toEndOf="@id/avatar"
+			app:layout_constraintTop_toTopOf="parent"
+			android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
-			<TextView
-				android:id="@+id/name"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:layout_marginStart="8dp"
-				android:textColor="@color/black"
-				android:textStyle="bold"
-				sample:text="Do Florian"
-				app:layout_constraintEnd_toStartOf="@id/timestamp"
-				app:layout_constraintStart_toEndOf="@id/avatar"
-				app:layout_constraintTop_toTopOf="parent"
-				android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+		<TextView
+			android:id="@+id/timestamp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:layout_marginEnd="8dp"
+			android:textColor="@color/text"
+			android:textAppearance="@style/TextAppearance.AppCompat.Small"
+			sample:text="By 9 Hours"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"/>
 
-			<TextView
-				android:id="@+id/timestamp"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:layout_marginEnd="8dp"
-				android:textColor="@color/text"
-				android:textAppearance="@style/TextAppearance.AppCompat.Small"
-				sample:text="By 9 Hours"
-				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintEnd_toEndOf="parent"/>
-
-			<TextView
-				android:id="@+id/comment"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginStart="8dp"
-				android:layout_marginEnd="8dp"
-				android:layout_marginTop="8dp"
-				android:textColor="@color/black"
-				sample:text="Wonderfull !"
-				app:layout_constraintStart_toEndOf="@id/avatar"
-				app:layout_constraintTop_toBottomOf="@id/name"
-				app:layout_constraintEnd_toEndOf="parent"/>
+		<TextView
+			android:id="@+id/comment"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="8dp"
+			android:layout_marginEnd="8dp"
+			android:layout_marginTop="8dp"
+			android:layout_marginBottom="8dp"
+			android:textColor="@color/black"
+			sample:text="Wonderfull !"
+			app:layout_constraintStart_toEndOf="@id/avatar"
+			app:layout_constraintTop_toBottomOf="@id/name"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"/>
 
 
-		</androidx.constraintlayout.widget.ConstraintLayout>
-
-	</LinearLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
