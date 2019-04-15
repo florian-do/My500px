@@ -13,20 +13,6 @@
 			motion:touchAnchorSide="top"
 			motion:dragDirection="dragUp" />
 
-		<KeyFrameSet>
-
-			<KeyAttribute
-				motion:framePosition="0"
-				motion:motionTarget="@id/content"
-				android:background="@color/black_alpha50" />
-
-			<KeyAttribute
-				motion:framePosition="100"
-				motion:motionTarget="@id/content"
-				android:background="@color/black" />
-
-		</KeyFrameSet>
-
 	</Transition>
 
 	<ConstraintSet android:id="@+id/collapsed">

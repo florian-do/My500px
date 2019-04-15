@@ -91,6 +91,17 @@ inline fun <T: TextView> T.afterMeasured(crossinline onFinished: T.() -> Unit)  
     })
 }
 
+inline fun <T: View> T.afterMeasured(crossinline onFinished: T.() -> Unit)  {
+    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            if (measuredWidth > 0 && measuredHeight > 0) {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                onFinished()
+            }
+        }
+    })
+}
+
 val Int.dp: Int
     get() = (this / Resources.getSystem().displayMetrics.density).toInt()
 val Int.px: Int

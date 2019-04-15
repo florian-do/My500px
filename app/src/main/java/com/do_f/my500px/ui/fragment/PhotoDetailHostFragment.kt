@@ -25,10 +25,8 @@ import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.do_f.my500px.App
-import com.do_f.my500px.BuildConfig
+import com.do_f.my500px.*
 
-import com.do_f.my500px.R
 import com.do_f.my500px.adapters.TagAdapter
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.api.model.VotesResponse
@@ -37,7 +35,6 @@ import com.do_f.my500px.base.BDialogFragment
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailHostBinding
 import com.do_f.my500px.listener.DismissEvent
-import com.do_f.my500px.parseDate
 import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.MainActivity
 import com.do_f.my500px.ui.dialogfragment.CommentsFragment
@@ -57,22 +54,21 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     private val UI_STATE = "ui_state"
     private val ARG_ITEM = "arg_item"
-
-    private lateinit var item: Photo
-    private lateinit var data : PagedList<Photo>
     private var count: Int = 0
     private var position: Int = 0
-
     private val ROTATION_END_MOTION = 180
 
     private lateinit var binding : FragmentPhotoDetailHostBinding
     private lateinit var viewModel : PhotoDetailViewModel
-    private var mListener : OnFragmentInteractionListener? = null
-    private var motionLayoutState : Int = 0
-    private var sharedViewModel : SharedViewModel? = null
+    private lateinit var item: Photo
+    private lateinit var data : PagedList<Photo>
+
     private var mSectionsPagerAdapter : SectionsPagerAdapter? = null
     private var isMotionLayoutLocked : Boolean = false
+    private var motionLayoutState : Int = 0
+    private var sharedViewModel : SharedViewModel? = null
     private var itemPosition = 0
+    private var mListener : OnFragmentInteractionListener? = null
     private val api : PhotosService = App.retrofit.create(PhotosService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +83,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_photo_detail_host, container, false)
+        binding.motionLayout.visibility = GONE
         return binding.root
     }
 
@@ -132,10 +129,10 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
             override fun onPageScrollStateChanged(p0: Int) { }
             override fun onPageScrolled(p0: Int, p1: Float, p2: Int) { }
             override fun onPageSelected(p0: Int) {
+                this@PhotoDetailHostFragment.position = p0
                 data[p0]?.let {
                     initView(it)
                 }
-                this@PhotoDetailHostFragment.position = p0
             }
         })
 
@@ -147,7 +144,6 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
         viewModel = ViewModelProviders.of(this).get(PhotoDetailViewModel::class.java)
         binding.vm = viewModel
-        viewModel.showUI.value = true
         initView(item)
         viewModel.showUI.observe(this, Observer {
             binding.showUI = it
@@ -157,7 +153,12 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
                 binding.motionLayout.visibility = GONE
         })
 
+        binding.pictureInformation.afterMeasured {
+            MainActivity.bottomContentHeight = height
+        }
+
         setMotionLayoutTransitionListener()
+        mListener?.onDataReady()
     }
 
     private fun initView(item: Photo) {
@@ -196,6 +197,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         binding.tagsFeed.adapter = adapter
         binding.tagsFeed.layoutManager = layoutManager
         binding.tagsFeed.isNestedScrollingEnabled = true
+        viewModel.showUI.value = true
     }
 
     private fun setDeviceAndExifData() {
@@ -217,53 +219,56 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         } else {
             viewModel.exif.set(getString(R.string.exif, item.focal_length, item.aperture, item.shutter_speed, item.iso))
         }
+
     }
 
     private fun updateVotes() {
         api.getVotes(item.id, BuildConfig.FIVEPX_API_KEY, 0).enqueue(object : Callback<VotesResponse> {
             override fun onFailure(call: Call<VotesResponse>, t: Throwable) { }
             override fun onResponse(call: Call<VotesResponse>, response: Response<VotesResponse>) {
-                response.body()?.let {item ->
+                response.body()?.let { item ->
                     when(item.total_items) {
-                        0 -> {
-                            binding.votesInformation.visibility = GONE
-                        }
-                        1 -> {
-                            activity?.let {
-                                Glide.with(it).load(item.users[0].avatars.default.https)
-                                    .apply(RequestOptions.circleCropTransform())
-                                    .into(binding.votesAvatarForeground)
-
-                                val str = getString(R.string.vote_label)
-                                binding.votesText.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                    Html.fromHtml("<b>${item.users[0].fullname}</b> "+str, Html.FROM_HTML_MODE_COMPACT)
-                                } else {
-                                    Html.fromHtml("<b>${item.users[0].fullname}</b> "+str)
-                                }
-                            }
-                        }
-                        else -> {
-                            activity?.let {
-                                Glide.with(it).load(item.users[1].avatars.default.https)
-                                    .apply(RequestOptions.circleCropTransform())
-                                    .into(binding.votesAvatarBackground)
-
-                                Glide.with(it).load(item.users[0].avatars.default.https)
-                                    .apply(RequestOptions.circleCropTransform())
-                                    .into(binding.votesAvatarForeground)
-
-                                val str = getString(R.string.votes_label, item.total_items - 2)
-                                binding.votesText.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                    Html.fromHtml("<b>${item.users[0].fullname}, ${item.users[1].fullname}</b> "+str, Html.FROM_HTML_MODE_COMPACT)
-                                } else {
-                                    Html.fromHtml("<b>${item.users[0].fullname}, ${item.users[1].fullname}</b> "+str)
-                                }
-                            }
-                        }
+                        0 -> binding.votesInformation.visibility = GONE
+                        1 -> updateVoteUIForOneLike(item)
+                        else -> updateVotesUIForMoreLikes(item)
                     }
                 }
             }
         })
+    }
+
+    private fun updateVoteUIForOneLike(item: VotesResponse) {
+        activity?.let {
+            Glide.with(it).load(item.users[0].avatars.default.https)
+                .apply(RequestOptions.circleCropTransform())
+                .into(binding.votesAvatarForeground)
+
+            val str = getString(R.string.vote_label)
+            binding.votesText.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml("<b>${item.users[0].fullname}</b> "+str, Html.FROM_HTML_MODE_COMPACT)
+            } else {
+                Html.fromHtml("<b>${item.users[0].fullname}</b> "+str)
+            }
+        }
+    }
+
+    private fun updateVotesUIForMoreLikes(item: VotesResponse) {
+        activity?.let {
+            Glide.with(it).load(item.users[1].avatars.default.https)
+                .apply(RequestOptions.circleCropTransform())
+                .into(binding.votesAvatarBackground)
+
+            Glide.with(it).load(item.users[0].avatars.default.https)
+                .apply(RequestOptions.circleCropTransform())
+                .into(binding.votesAvatarForeground)
+
+            val str = getString(R.string.votes_label, item.total_items - 2)
+            binding.votesText.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml("<b>${item.users[0].fullname}, ${item.users[1].fullname}</b> "+str, Html.FROM_HTML_MODE_COMPACT)
+            } else {
+                Html.fromHtml("<b>${item.users[0].fullname}, ${item.users[1].fullname}</b> "+str)
+            }
+        }
     }
 
     private fun setMotionLayoutTransitionListener() {
@@ -278,12 +283,14 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
                     binding.extraContent.alpha = p3
                     binding.informationSeparator.alpha = p3
                     if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        // Portrait
                         mSectionsPagerAdapter?.getRegisteredFragment(this@PhotoDetailHostFragment.position)?.let {
                             if (it.motionLayoutReady) {
                                 it.motionLayout.progress = Math.abs(p3)
                             }
                         }
                     } else {
+                        // Landscape
                         binding.toolbar.alpha = Math.abs(1 - p3)
                         binding.pictureInformation.alpha = p3
 
@@ -395,6 +402,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     interface OnFragmentInteractionListener {
         fun myOnBackPress()
+        fun onDataReady()
     }
 
     companion object {

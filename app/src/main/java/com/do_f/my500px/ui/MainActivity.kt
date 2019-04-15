@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity(),
     private val MAX_SWIPE = 1000F
 
     private var isPictureViewHidden = true
-    private var isScrolling = false
     private var beginYPosition : Float = 0F
     private var scrollOffsetWithThreshold : Float = 0F
 
@@ -56,6 +55,7 @@ class MainActivity : AppCompatActivity(),
     companion object {
         var isSwipeDismissEnable : Boolean = true
         var bottomContentHeight : Int = 0
+        var isScrolling = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,16 +104,17 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    // TODO find something better
     private fun getPictureViewerFragment() : Fragment? {
         return supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)
     }
 
     override fun startPictureViewer(item: Photo) {
+        isPictureViewHidden = false
         backContainer.visibility = GONE
         frontContainer.visibility = VISIBLE
         pictureViewerBackground.visibility = VISIBLE
-        isPictureViewHidden = false
+        progress_loading.visibility = VISIBLE
+        isSystemUIHidden(true)
 
         val position = DataHolder.instance.data.indexOf(item)
         supportFragmentManager
@@ -124,16 +125,14 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun closePictureViewer() {
-        getPictureViewerFragment()?.let {
-            backContainer.visibility = VISIBLE
-            frontContainer.visibility = GONE
-            frontContainer.y = 0F
-            pictureViewerBackground.visibility = GONE
-            pictureViewerBackground.alpha = 0F
-            supportFragmentManager.popBackStack()
-            isPictureViewHidden = true
-            isSystemUIHidden(false)
-        }
+        backContainer.visibility = VISIBLE
+        frontContainer.visibility = GONE
+        frontContainer.y = 0F
+        pictureViewerBackground.visibility = GONE
+        pictureViewerBackground.alpha = 0F
+        supportFragmentManager.popBackStack()
+        isPictureViewHidden = true
+        isSystemUIHidden(false)
     }
 
     /**
@@ -144,13 +143,13 @@ class MainActivity : AppCompatActivity(),
         closePictureViewer()
     }
 
+    override fun onDataReady() {
+        progress_loading.visibility = GONE
+    }
+
     /**
      * BFragment Implementation
      */
-
-    override fun onDataReady() {
-
-    }
 
     override fun isSystemUIHidden(isHidden: Boolean) {
         if (isHidden) {
@@ -181,7 +180,6 @@ class MainActivity : AppCompatActivity(),
         if (getPictureViewerFragment() is PhotoDetailHostFragment) {
             val fragment = getPictureViewerFragment() as PhotoDetailHostFragment
             fragment.container.dispatchTouchEvent(event)
-
         }
 
         when (event?.action) {
@@ -210,7 +208,8 @@ class MainActivity : AppCompatActivity(),
     override fun onLongPress(p0: MotionEvent?) { }
     override fun onSingleTapUp(p0: MotionEvent?): Boolean {
         val y : Float = p0?.y ?: 0F
-        if (y > getToolbarHeight()) {
+        val maxHeight = Resources.getSystem().displayMetrics.heightPixels.toFloat()
+        if (y > getToolbarHeight() && y < (maxHeight - getBottomContentHeight())) {
             if (getPictureViewerFragment() is PhotoDetailHostFragment) {
                 (getPictureViewerFragment() as PhotoDetailHostFragment).onClickListener()
             }
@@ -219,16 +218,8 @@ class MainActivity : AppCompatActivity(),
     }
     override fun onDown(p0: MotionEvent?): Boolean = true
     override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean  {
-        val deltaY : Float = p0?.y?.minus(p1?.y ?: 0F) ?: 0F
         val deltaX : Float = p0?.x?.minus(p1?.x ?: 0F) ?: 0F
-        val deltaAbsY = Math.abs(deltaY)
         val deltaAbsX = Math.abs(deltaX)
-
-        if (deltaAbsY in MIN_SWIPE..MAX_SWIPE && deltaY > 0) {
-//            (getPictureViewerFragment() as PhotoDetailHostFragment).let {
-//                it.triggerMotionSceneAnimation()
-//            }
-        }
 
         // Swipe left or right
         if (deltaAbsX in MIN_SWIPE..MAX_SWIPE) {
@@ -244,7 +235,7 @@ class MainActivity : AppCompatActivity(),
         if (isPictureViewHidden) return true
 
         return when (getSlope(p0.x, p0.y, p1.x, p1.y)) {
-            1 -> handleMotionSceneEvent(p0, p1)
+            1 -> true
             2 -> handleViewPagerEvent()
             3 -> handleDismissEvent(p0, p1)
             4 -> handleViewPagerEvent()
@@ -252,7 +243,6 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    //TODO create an extension from MotionEvent
     // https://vshivam.wordpress.com/2014/04/28/detecting-up-down-left-right-swipe-on-android/
     private fun getSlope(x1: Float, y1: Float, x2: Float, y2: Float): Int {
         val angle = Math.toDegrees(Math.atan2((y1 - y2).toDouble(), (x2 - x1).toDouble()))
@@ -269,10 +259,6 @@ class MainActivity : AppCompatActivity(),
         return if (angle > -45 && angle <= 45) 4 else 0
     }
 
-    private fun handleMotionSceneEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
-       return true
-    }
-
     private fun handleViewPagerEvent() : Boolean {
         if (isSwipeDismissEnable)
             isSwipeDismissEnable = false
@@ -286,10 +272,10 @@ class MainActivity : AppCompatActivity(),
 
     private fun handleDismissEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
         if (p0.y <= getToolbarHeight()) return true
-        if (beginYPosition == 0F) beginYPosition = frontContainer.y
 
         val scrollOffset = p1.y - p0.y
         if (scrollOffset > THRESHOLD_EVENT_DISMISS && !isScrolling && isSwipeDismissEnable) {
+            if (beginYPosition == 0F) beginYPosition = frontContainer.y
             prepareForDismissEvent()
         }
 
@@ -345,7 +331,6 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun getBottomContentHeight() : Int {
-
         return bottomContentHeight + 50.px
     }
 

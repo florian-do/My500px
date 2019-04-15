@@ -31,7 +31,7 @@ class VotesFragment : BDialogFragment() {
     private lateinit var viewModel : VotesViewModel
     private lateinit var adapter : VoteAdapter
 
-    lateinit var mListener: () -> Unit
+    var mListener: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +90,7 @@ class VotesFragment : BDialogFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mListener.invoke()
+        mListener?.invoke()
     }
 
     companion object {
