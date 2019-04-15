@@ -91,7 +91,6 @@ inline fun <T: TextView> T.afterMeasured(crossinline onFinished: T.() -> Unit)  
     })
 }
 
-
 val Int.dp: Int
     get() = (this / Resources.getSystem().displayMetrics.density).toInt()
 val Int.px: Int

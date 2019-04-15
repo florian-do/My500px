@@ -8,21 +8,19 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.enumdir.State
 import java.io.IOException
 
-class ShowcaseDataSource(private val api: PhotosService) : PageKeyedDataSource<Int, Photo>() {
-
-    var state: MutableLiveData<State> = MutableLiveData()
+class ShowcaseDataSource(private val api: PhotosService, val state: MutableLiveData<State>) : PageKeyedDataSource<Int, Photo>() {
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Photo>) {
+        updateState(State.LOADING)
         callApi(1) { photos, next ->
             callback.onResult(photos, null, next)
+            updateState(State.DONE)
         }
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Photo>) {
-        updateState(State.LOADING)
         callApi(params.key) { photos, next ->
             callback.onResult(photos, next)
-            updateState(State.DONE)
         }
     }
 

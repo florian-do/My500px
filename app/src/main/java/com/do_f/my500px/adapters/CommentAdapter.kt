@@ -1,7 +1,5 @@
 package com.do_f.my500px.adapters
 
-import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -15,19 +13,9 @@ import com.do_f.my500px.R
 import com.do_f.my500px.api.model.Comment
 import com.do_f.my500px.databinding.AdapterCommentBinding
 import com.do_f.my500px.parseDate
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.Period
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.util.*
 
-class CommentAdapter(private val glide: RequestManager,
-                      private val orientation: Int)
+class CommentAdapter(private val glide: RequestManager)
     : PagedListAdapter<Comment, CommentAdapter.ViewHolder>(diffCallback) {
-
-    val TAG = "Adapter"
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val binding : AdapterCommentBinding = DataBindingUtil.inflate(

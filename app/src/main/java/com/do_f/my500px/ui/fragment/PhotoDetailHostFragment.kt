@@ -33,6 +33,7 @@ import com.do_f.my500px.adapters.TagAdapter
 import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.api.model.VotesResponse
 import com.do_f.my500px.api.service.PhotosService
+import com.do_f.my500px.base.BDialogFragment
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailHostBinding
 import com.do_f.my500px.listener.DismissEvent
@@ -56,7 +57,6 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     private val UI_STATE = "ui_state"
     private val ARG_ITEM = "arg_item"
-    private val TAG = "PhotoDetailHostFragment"
 
     private lateinit var item: Photo
     private lateinit var data : PagedList<Photo>
@@ -87,10 +87,6 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_photo_detail_host, container, false)
-        binding.motionLayout.visibility = GONE
-        binding.motionLayout.alpha = 0F
-        binding.container.visibility = GONE
-        binding.container.alpha = 0F
         return binding.root
     }
 
@@ -114,7 +110,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
                 votesFragment.mListener = {
                     systemUIListener?.isSystemUIHidden(true)
                 }
-                votesFragment.show(it, null)
+                votesFragment.show(it, BDialogFragment.TAG)
             }
         }
 
@@ -124,14 +120,13 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
                 commentsFragment.mListener = {
                     systemUIListener?.isSystemUIHidden(true)
                 }
-                commentsFragment.show(fm, null)
+                commentsFragment.show(fm, BDialogFragment.TAG)
             }
         }
 
         mSectionsPagerAdapter = SectionsPagerAdapter(childFragmentManager)
         container.adapter = mSectionsPagerAdapter
         container.currentItem = data.indexOf(item)
-        Log.d(TAG, "${container.currentItem} / ${item.name}")
         container.pageMargin = resources.getDimension(R.dimen.viewpager_margin).toInt()
         container.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(p0: Int) { }
@@ -163,18 +158,6 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         })
 
         setMotionLayoutTransitionListener()
-
-        binding.motionLayout.visibility = VISIBLE
-        binding.motionLayout.animate().alpha(1F).setDuration(500).start()
-        binding.container.visibility = VISIBLE
-        binding.container.animate().alpha(1F).setDuration(500).start()
-        if (savedInstanceState != null) {
-            val mlState = savedInstanceState.getInt(UI_STATE)
-//            when(mlState) {
-//                binding.motionLayout.startState -> binding.motionLayout.progress = 1F
-//                binding.motionLayout.endState -> binding.motionLayout.progress = 0F
-//            }
-        }
     }
 
     private fun initView(item: Photo) {
@@ -184,7 +167,7 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
                 .apply(RequestOptions.circleCropTransform())
                 .into(binding.toolbarAvatar!!)
         }
-
+        updateVotes()
         Glide.with(this).load(item.user.avatars.default.https)
             .apply(RequestOptions.circleCropTransform())
             .into(binding.avatar)
@@ -198,8 +181,6 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         viewModel.description.set(item.description)
         viewModel.datetime.set(item.created_at.parseDate(binding.datetime.resources))
 
-        Log.d(TAG, "photos : ${item.comments_count}")
-        updateVotes()
         setDeviceAndExifData()
 
         val adapter = TagAdapter()

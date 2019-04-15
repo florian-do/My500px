@@ -8,21 +8,23 @@ import com.do_f.my500px.api.service.PhotosService
 import com.do_f.my500px.enumdir.State
 import java.io.IOException
 
-class VotesDataSource(val api : PhotosService, val id: Int) : PageKeyedDataSource<Int, User>() {
-
-    var state: MutableLiveData<State> = MutableLiveData()
+class VotesDataSource(
+    val api: PhotosService,
+    val id: Int,
+    val state: MutableLiveData<State>
+) : PageKeyedDataSource<Int, User>() {
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, User>) {
+        updateState(State.LOADING)
         callApi(1) { photos, next ->
             callback.onResult(photos, null, next)
+            updateState(State.DONE)
         }
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, User>) {
-        updateState(State.LOADING)
         callApi(params.key) { photos, next ->
             callback.onResult(photos, next)
-            updateState(State.DONE)
         }
     }
 

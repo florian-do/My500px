@@ -9,6 +9,10 @@ import com.do_f.my500px.R
 
 open class BDialogFragment : DialogFragment() {
 
+    companion object {
+        const val TAG = "DialogFragment"
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -29,7 +33,7 @@ open class BDialogFragment : DialogFragment() {
         super.onActivityCreated(savedInstanceState)
         dialog?.window?.attributes?.windowAnimations = getDialogAnimation()
 
-        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         dialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         dialog?.window?.statusBarColor = ContextCompat.getColor(context!!, getStatusBarColor())
     }

@@ -16,25 +16,31 @@ import com.do_f.my500px.App
 import com.do_f.my500px.R
 
 import com.do_f.my500px.api.model.Photo
-import com.do_f.my500px.findBehavior
 import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.listener.OnSystemUIListener
 import com.do_f.my500px.px
 import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.fragment.PhotoDetailHostFragment
 import com.do_f.my500px.ui.fragment.ShowcaseFragment
-import com.do_f.my500px.view.BackdropBehavior
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
+import android.content.Context
+import android.net.*
+import com.do_f.my500px.base.BDialogFragment
+import com.do_f.my500px.ui.dialogfragment.CommentsFragment
+import com.do_f.my500px.ui.dialogfragment.VotesFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(),
     OnSystemUIListener, GestureDetector.OnGestureListener,
     DismissEvent, PhotoDetailHostFragment.OnFragmentInteractionListener,
-    ShowcaseFragment.OnFragmentInteractionListener{
+    ShowcaseFragment.OnFragmentInteractionListener {
 
-    private val TAG = "MainActivity"
     private val PICTURE_VIEWER_TAG = "picture_viewer_tag"
     private val PICTURE_VIEW_STATE = "picture_viewer_state"
+    private val INTERNET_ERROR_STATE = "internet_error_state"
     private val THRESHOLD_EVENT_DISMISS = 200F
     private val MAX_ALPHA_VALUE = 255F
     private val MIN_SWIPE = 200F
@@ -46,7 +52,6 @@ class MainActivity : AppCompatActivity(),
     private var scrollOffsetWithThreshold : Float = 0F
 
     private lateinit var mDetector: GestureDetectorCompat
-    private lateinit var backdropBehavior : BackdropBehavior
 
     companion object {
         var isSwipeDismissEnable : Boolean = true
@@ -63,16 +68,11 @@ class MainActivity : AppCompatActivity(),
                 App.defaultSystemUiVisibility = window.decorView.systemUiVisibility
 
             frontContainer.visibility = GONE
+            initNetwork()
             supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.backContainer, ShowcaseFragment.newInstance())
                 .commitNow()
-        }
-
-        backdropBehavior = frontContainer.findBehavior()
-        with(backdropBehavior) {
-            attachBackContainer(R.id.backContainer)
-            attachPictureViewerBackground(R.id.pictureViewerBackground)
         }
 
         mDetector = GestureDetectorCompat(this, this)
@@ -83,6 +83,9 @@ class MainActivity : AppCompatActivity(),
                 backContainer.visibility = GONE
                 pictureViewerBackground.visibility = VISIBLE
             }
+
+            internet_status.visibility = savedInstanceState.getInt(INTERNET_ERROR_STATE)
+            initNetwork()
         }
         // You can retrieve the consumer key with BuildConfig.FIVEPX_API_KEY
     }
@@ -90,6 +93,7 @@ class MainActivity : AppCompatActivity(),
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(PICTURE_VIEW_STATE, isPictureViewHidden)
+        outState.putInt(INTERNET_ERROR_STATE, internet_status.visibility)
     }
 
     override fun onBackPressed() {
@@ -106,8 +110,8 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun startPictureViewer(item: Photo) {
-        frontContainer.visibility = VISIBLE
         backContainer.visibility = GONE
+        frontContainer.visibility = VISIBLE
         pictureViewerBackground.visibility = VISIBLE
         isPictureViewHidden = false
 
@@ -115,7 +119,8 @@ class MainActivity : AppCompatActivity(),
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.frontContainer, PhotoDetailHostFragment.newInstance(position), PICTURE_VIEWER_TAG)
-            .commitNow()
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun closePictureViewer() {
@@ -124,7 +129,8 @@ class MainActivity : AppCompatActivity(),
             frontContainer.visibility = GONE
             frontContainer.y = 0F
             pictureViewerBackground.visibility = GONE
-            supportFragmentManager.beginTransaction().remove(it).commit()
+            pictureViewerBackground.alpha = 0F
+            supportFragmentManager.popBackStack()
             isPictureViewHidden = true
             isSystemUIHidden(false)
         }
@@ -141,6 +147,10 @@ class MainActivity : AppCompatActivity(),
     /**
      * BFragment Implementation
      */
+
+    override fun onDataReady() {
+
+    }
 
     override fun isSystemUIHidden(isHidden: Boolean) {
         if (isHidden) {
@@ -337,5 +347,43 @@ class MainActivity : AppCompatActivity(),
     private fun getBottomContentHeight() : Int {
 
         return bottomContentHeight + 50.px
+    }
+
+    private fun initNetwork() {
+        val networkRequest = NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build()
+
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.registerNetworkCallback(networkRequest, object : ConnectivityManager.NetworkCallback() {
+
+            override fun onAvailable(network: Network?) {
+                super.onAvailable(network)
+                val f = if (supportFragmentManager.findFragmentByTag(BDialogFragment.TAG) != null) {
+                    supportFragmentManager.findFragmentByTag(BDialogFragment.TAG)
+                } else {
+                    supportFragmentManager.findFragmentById(R.id.backContainer)
+                }
+
+                if (internet_status.visibility == VISIBLE) {
+                    when (f) {
+                        is ShowcaseFragment -> f.refreshDatasource()
+                        is CommentsFragment -> f.refreshDatasource()
+                        is VotesFragment -> f.refreshDatasource()
+                        else -> { }
+                    }
+                }
+
+                GlobalScope.launch(context = Dispatchers.Main) {
+                    internet_status.visibility = GONE
+                }
+            }
+
+            override fun onLost(network: Network?) {
+                super.onLost(network)
+                GlobalScope.launch(context = Dispatchers.Main) {
+                    internet_status.visibility = VISIBLE
+                }
+            }
+        })
     }
 }

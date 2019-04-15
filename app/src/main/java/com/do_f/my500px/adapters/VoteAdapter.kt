@@ -13,11 +13,8 @@ import com.do_f.my500px.R
 import com.do_f.my500px.api.model.User
 import com.do_f.my500px.databinding.AdapterVoteBinding
 
-class VoteAdapter(private val glide: RequestManager,
-                     private val orientation: Int)
+class VoteAdapter(private val glide: RequestManager)
     : PagedListAdapter<User, VoteAdapter.ViewHolder>(diffCallback) {
-
-    val TAG = "Adapter"
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val binding : AdapterVoteBinding = DataBindingUtil.inflate(

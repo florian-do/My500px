@@ -31,6 +31,8 @@ class ShowcaseAdapter(private val glide: RequestManager,
                       private val commentListener: (Int, Int) -> Unit)
     : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
 
+    var position : Int = 0
+
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val binding : AdapterShowcaseBinding = DataBindingUtil.inflate(
             LayoutInflater.from(p0.context),
@@ -42,6 +44,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
     }
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
+        position = p1
         getItem(p1)?.let { item ->
             var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
             when(orientation) {
@@ -84,7 +87,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
                 mListener.invoke(getItem(p1)!!)
             }
 
-            p0.binding.commentView?.setOnClickListener {
+            p0.binding.commentView.setOnClickListener {
                 commentListener.invoke(item.id, item.comments_count)
             }
         }
