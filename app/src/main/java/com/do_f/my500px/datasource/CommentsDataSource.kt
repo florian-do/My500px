@@ -8,18 +8,23 @@ import com.do_f.my500px.api.service.PhotosService
 import com.do_f.my500px.enumdir.State
 import java.io.IOException
 
-class CommentsDataSource(val api: PhotosService, val id: Int, val startPage : Int) : PageKeyedDataSource<Int, Comment>() {
-
-    var state: MutableLiveData<State> = MutableLiveData()
+class CommentsDataSource(
+    val api: PhotosService,
+    val id: Int,
+    private val startPage: Int,
+    val state: MutableLiveData<State>
+) : PageKeyedDataSource<Int, Comment>() {
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Comment>) {
+        updateState(State.LOADING)
         callApi(startPage) { items, nextPage ->
             callback.onResult(items, null, nextPage)
+            updateState(State.DONE)
         }
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Comment>) {
-        if (params.key >= 0) {
+        if (params.key > 0) {
             callApi(params.key) { items, nextPage ->
                 callback.onResult(items, nextPage)
             }
@@ -39,9 +44,11 @@ class CommentsDataSource(val api: PhotosService, val id: Int, val startPage : In
                     tmp.reverse()
                     completion(tmp, page - 1)
                 }
+            } else {
+                updateState(State.ERROR)
             }
         } catch (e: IOException) {
-
+            updateState(State.ERROR)
         }
     }
 

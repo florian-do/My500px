@@ -13,8 +13,8 @@ import com.do_f.my500px.enumdir.State
 
 class VotesViewModel : ViewModel() {
     lateinit var data : LiveData<PagedList<User>>
+    lateinit var dataSourceFactory : VotesDataSourceFactory
 
-    private lateinit var dataSourceFactory : VotesDataSourceFactory
     fun init(id : Int) {
         val config = PagedList.Config.Builder()
             .setInitialLoadSizeHint(20)
@@ -27,5 +27,5 @@ class VotesViewModel : ViewModel() {
         data = LivePagedListBuilder(dataSourceFactory, config).build()
     }
 
-    fun getState(): LiveData<State> = dataSourceFactory.source.state
+    fun getState(): LiveData<State> = dataSourceFactory.state
 }

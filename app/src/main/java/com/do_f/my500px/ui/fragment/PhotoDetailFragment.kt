@@ -13,7 +13,6 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailBinding
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.constraintlayout.motion.widget.MotionLayout
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -29,8 +28,6 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
     private var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
     private lateinit var binding : FragmentPhotoDetailBinding
     private var position: Int = 0
-
-    private var TAG = "PhotoDetail"
 
     var motionLayoutReady = false
 
@@ -78,10 +75,7 @@ class PhotoDetailFragment : BFragment(), DismissEvent {
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?, model: Any?,
-                    target: Target<Drawable>?, isFirstResource: Boolean): Boolean  {
-                    Log.e(TAG, "error : ", e)
-                    return false
-                }
+                    target: Target<Drawable>?, isFirstResource: Boolean): Boolean = false
 
                 override fun onResourceReady(
                     resource: Drawable?, model: Any?,

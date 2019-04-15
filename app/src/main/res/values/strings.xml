@@ -14,4 +14,6 @@
 	<string name="number_comments">%d comments</string>
 	<string name="votes_label">and %d more liked this photo.</string>
 	<string name="vote_label">liked this photo.</string>
+	<string name="no_internet_connection">No internet connection</string>
+	<string name="error_has_occured">An error has occurred, please try again</string>
 </resources>

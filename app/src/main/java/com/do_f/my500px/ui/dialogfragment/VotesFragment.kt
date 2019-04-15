@@ -16,6 +16,9 @@ import com.do_f.my500px.base.BDialogFragment
 import com.do_f.my500px.databinding.FragmentVotesBinding
 import com.do_f.my500px.enumdir.State
 import com.do_f.my500px.viewmodel.VotesViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 private const val ARG_ID = "arg_id"
 private const val ARG_VOTES_COUNT = "arg_votes_count"
@@ -40,7 +43,7 @@ class VotesFragment : BDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_votes, container, false)
-        adapter = VoteAdapter(Glide.with(this), 0)
+        adapter = VoteAdapter(Glide.with(this))
         viewModel = ViewModelProviders.of(this).get(VotesViewModel::class.java)
         viewModel.init(pictureId)
         binding.loading = true
@@ -55,7 +58,7 @@ class VotesFragment : BDialogFragment() {
         binding.rvFeed.adapter = adapter
         binding.title.text = resources.getQuantityString(R.plurals.like, votesCount, votesCount)
         binding.back.setOnClickListener {
-            fragmentManager?.popBackStack()
+            dismiss()
         }
 
         viewModel.data.observe(this, Observer {
@@ -64,10 +67,25 @@ class VotesFragment : BDialogFragment() {
         })
 
         viewModel.getState().observe(this, Observer {
-            if (it == State.ERROR) {
-                //Todo do something
+            GlobalScope.launch(context = Dispatchers.Main) {
+                when (it) {
+                    State.LOADING -> binding.loading = true
+                    State.ERROR -> {
+                        binding.loading = false
+                        binding.error.visibility = View.VISIBLE
+                    }
+                    State.DONE -> {
+                        binding.loading = false
+                        binding.error.visibility = View.GONE
+                    }
+                    else -> { }
+                }
             }
         })
+    }
+
+    fun refreshDatasource() {
+        viewModel.dataSourceFactory.source?.invalidate()
     }
 
     override fun onDestroy() {

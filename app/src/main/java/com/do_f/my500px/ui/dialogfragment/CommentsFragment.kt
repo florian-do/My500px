@@ -1,7 +1,6 @@
 package com.do_f.my500px.ui.dialogfragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,11 +14,14 @@ import com.do_f.my500px.R
 import com.do_f.my500px.adapters.CommentAdapter
 import com.do_f.my500px.base.BDialogFragment
 import com.do_f.my500px.databinding.FragmentCommentsBinding
+import com.do_f.my500px.enumdir.State
 import com.do_f.my500px.viewmodel.CommentsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class CommentsFragment : BDialogFragment() {
 
-    private val TAG = "CommentsFragment"
     private val ARG_ID = "arg_id"
     private val ARG_COMMENTS_COUNT = "arg_comments_count"
 
@@ -40,7 +42,7 @@ class CommentsFragment : BDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_comments, container, false)
-        adapter = CommentAdapter(Glide.with(this), 0)
+        adapter = CommentAdapter(Glide.with(this))
         viewModel = ViewModelProviders.of(this).get(CommentsViewModel::class.java)
         var startPage = (commentsCount / 20)
         if ((commentsCount % 20) != 0) startPage++
@@ -58,13 +60,32 @@ class CommentsFragment : BDialogFragment() {
         binding.rvFeed.adapter = adapter
         binding.title.text = resources.getQuantityString(R.plurals.comment, commentsCount, commentsCount)
         binding.back.setOnClickListener {
-            fragmentManager?.popBackStack()
+            dismiss()
         }
         viewModel.data.observe(this, Observer {
-            binding.loading = false
-            Log.d(TAG, "${it.size}")
             adapter.submitList(it)
         })
+
+        viewModel.getState().observe(this, Observer {
+            GlobalScope.launch(context = Dispatchers.Main) {
+                when (it) {
+                    State.LOADING -> binding.loading = true
+                    State.ERROR -> {
+                        binding.loading = false
+                        binding.error.visibility = View.VISIBLE
+                    }
+                    State.DONE -> {
+                        binding.loading = false
+                        binding.error.visibility = View.GONE
+                    }
+                    else -> { }
+                }
+            }
+        })
+    }
+
+    fun refreshDatasource() {
+        viewModel.dataSourceFactory.source?.invalidate()
     }
 
     override fun onDestroy() {

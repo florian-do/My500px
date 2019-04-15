@@ -1,6 +1,7 @@
 package com.do_f.my500px.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
@@ -14,7 +15,7 @@ import com.do_f.my500px.enumdir.State
 class ShowcaseViewModel: ViewModel() {
 
     var data : LiveData<PagedList<Photo>>
-    private val dataSourceFactory : ShowcaseDataSourceFactory
+    val dataSourceFactory : ShowcaseDataSourceFactory
 
     init {
         val config = PagedList.Config.Builder()
@@ -28,5 +29,5 @@ class ShowcaseViewModel: ViewModel() {
         data = LivePagedListBuilder(dataSourceFactory, config).build()
     }
 
-    fun getState(): LiveData<State> = dataSourceFactory.source.state
+    fun getState(): LiveData<State> = dataSourceFactory.state
 }

@@ -59,20 +59,28 @@
 						android:textColor="@color/black"
 						sample:text="391"/>
 
-					<ImageView
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:layout_marginStart="32dp"
-						android:src="@drawable/ic_chat"
-						sample:ignore="ContentDescription"/>
-
-					<TextView
-						android:id="@+id/commentsCount"
+					<LinearLayout
+						android:id="@+id/commentView"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:layout_marginStart="8dp"
-						android:textColor="@color/black"
-						sample:text="9"/>
+						android:orientation="horizontal">
+
+						<ImageView
+							android:layout_width="24dp"
+							android:layout_height="24dp"
+							android:layout_marginStart="32dp"
+							android:src="@drawable/ic_chat"
+							sample:ignore="ContentDescription"/>
+
+						<TextView
+							android:id="@+id/commentsCount"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_marginStart="8dp"
+							android:textColor="@color/black"
+							sample:text="9"/>
+
+					</LinearLayout>
 
 				</LinearLayout>
 
