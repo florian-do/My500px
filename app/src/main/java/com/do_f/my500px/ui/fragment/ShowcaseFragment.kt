@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.do_f.my500px.App
-import com.do_f.my500px.BuildConfig
 
 import com.do_f.my500px.R
 import com.do_f.my500px.adapters.ShowcaseAdapter
@@ -22,14 +21,12 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.api.service.PhotosService
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentShowcaseBinding
-import com.do_f.my500px.enumdir.State
 import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.dialogfragment.CommentsFragment
 import com.do_f.my500px.viewmodel.SharedViewModel
 import com.do_f.my500px.viewmodel.ShowcaseViewModel
 import kotlinx.android.synthetic.main.fragment_showcase.*
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ShowcaseFragment : BFragment() {
@@ -74,11 +71,6 @@ class ShowcaseFragment : BFragment() {
         viewModel.data.observe(this, Observer {
             adapter.submitList(it)
             binding.loading = (adapter.itemCount == 0)
-        })
-
-        viewModel.getState().observe(this, Observer {
-//            if (it == State.DONE)
-//                adapter.currentList?.let { it1 -> fetchComments(it1) }
         })
 
         sharedViewModel?.position?.observe(this, Observer {

@@ -30,6 +30,7 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.base.BFragment
 import com.do_f.my500px.databinding.FragmentPhotoDetailHostBinding
 import com.do_f.my500px.listener.DismissEvent
+import com.do_f.my500px.parseDate
 import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.MainActivity
 import com.do_f.my500px.viewmodel.PhotoDetailViewModel
@@ -189,6 +190,30 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         viewModel.pulse.set(item.rating.toString())
         viewModel.views.set(item.times_viewed.toString())
         viewModel.description.set(item.description)
+        viewModel.datetime.set(item.created_at.parseDate(binding.datetime.resources))
+
+        viewModel.getVotes(item.id).observe(this, Observer {
+            it?.let { item ->
+
+                when(item.total_items) {
+                    0 -> {
+                        binding.votesInformation.visibility = GONE
+                    }
+                    1 -> {
+
+                    }
+                    else -> {
+                        Glide.with(this).load(item.users[1].avatars.default.https)
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(binding.votesAvatarBackground)
+
+                        Glide.with(this).load(item.users[0].avatars.default.https)
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(binding.votesAvatarForetground)
+                    }
+                }
+            }
+        })
 
         val adapter = TagAdapter()
         adapter.items = item.tags
@@ -200,9 +225,11 @@ class PhotoDetailHostFragment : BFragment(), DismissEvent {
         layoutManager.flexWrap = FlexWrap.WRAP
         layoutManager.justifyContent = JustifyContent.FLEX_START
 
-        binding.tagsFeed?.adapter = adapter
-        binding.tagsFeed?.layoutManager = layoutManager
-        binding.tagsFeed?.isNestedScrollingEnabled = true
+        binding.tagsFeed.adapter = adapter
+        binding.tagsFeed.layoutManager = layoutManager
+        binding.tagsFeed.isNestedScrollingEnabled = true
+
+
 
         if (item.camera == null) {
             binding.cameraInformation.visibility = GONE
