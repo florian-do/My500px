@@ -17,6 +17,7 @@ You can follow those steps : [Hiding API keys from your Android repository](http
 * [Kotlin](https://kotlinlang.org/) - Kotlin language
 * [500PX API](https://github.com/500px/legacy-api-documentation) - 500PX API
 * [Android Jetpack](https://developer.android.com/jetpack/) - Jetpack is a collection of Android software components to make it easier for you to develop great Android apps.
+* [Motion Layout Alpha 4](https://developer.android.com/reference/android/support/constraint/motion/MotionLayout)  - A MotionLayout is a ConstraintLayout which allows you to animate layouts between various states.
 
 ## Contributing
 
@@ -24,7 +25,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Versioning
 
-We use [Android Studio](https://developer.android.com/studio) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use [Android Studio](https://developer.android.com/studio) for versioning. For the versions available, see the [tags on this repository](https://github.com/florian-do/My500px/tags). 
 
 ## Authors
 
