@@ -3,6 +3,7 @@ package com.do_f.my500px.adapters
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.databinding.DataBindingUtil
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -28,7 +29,8 @@ import com.do_f.my500px.setImageSizeFromRatioByWidth
 class ShowcaseAdapter(private val glide: RequestManager,
                       private val orientation: Int,
                       private val mListener: (Photo) -> Unit,
-                      private val commentListener: (Int, Int) -> Unit)
+                      private val commentListener: (Int, Int) -> Unit,
+                      private val voteListener: (Int, Int) -> Unit)
     : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
 
     var position : Int = 0
@@ -89,6 +91,10 @@ class ShowcaseAdapter(private val glide: RequestManager,
 
             p0.binding.commentView.setOnClickListener {
                 commentListener.invoke(item.id, item.comments_count)
+            }
+
+            p0.binding.likesCount.setOnClickListener {
+                voteListener.invoke(item.id, item.votes_count)
             }
         }
     }

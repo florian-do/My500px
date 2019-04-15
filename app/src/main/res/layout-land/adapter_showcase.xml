@@ -45,10 +45,12 @@
 					app:layout_constraintEnd_toEndOf="parent">
 
 					<ImageView
+						android:id="@+id/like"
 						android:layout_width="24dp"
 						android:layout_height="24dp"
 						android:layout_marginStart="8dp"
 						android:src="@drawable/ic_like"
+						android:tag="@drawable/ic_like"
 						sample:ignore="ContentDescription"/>
 
 					<TextView

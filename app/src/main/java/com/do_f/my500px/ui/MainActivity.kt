@@ -26,7 +26,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_photo_detail_host.*
 import android.content.Context
 import android.net.*
-import android.util.Log
 import com.do_f.my500px.base.BDialogFragment
 import com.do_f.my500px.ui.dialogfragment.CommentsFragment
 import com.do_f.my500px.ui.dialogfragment.VotesFragment
@@ -105,7 +104,6 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    // TODO find something better
     private fun getPictureViewerFragment() : Fragment? {
         return supportFragmentManager.findFragmentByTag(PICTURE_VIEWER_TAG)
     }
@@ -237,7 +235,7 @@ class MainActivity : AppCompatActivity(),
         if (isPictureViewHidden) return true
 
         return when (getSlope(p0.x, p0.y, p1.x, p1.y)) {
-            1 -> handleMotionSceneEvent(p0, p1)
+            1 -> true
             2 -> handleViewPagerEvent()
             3 -> handleDismissEvent(p0, p1)
             4 -> handleViewPagerEvent()
@@ -245,7 +243,6 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    //TODO create an extension from MotionEvent
     // https://vshivam.wordpress.com/2014/04/28/detecting-up-down-left-right-swipe-on-android/
     private fun getSlope(x1: Float, y1: Float, x2: Float, y2: Float): Int {
         val angle = Math.toDegrees(Math.atan2((y1 - y2).toDouble(), (x2 - x1).toDouble()))
@@ -260,10 +257,6 @@ class MainActivity : AppCompatActivity(),
         // down
             return 3
         return if (angle > -45 && angle <= 45) 4 else 0
-    }
-
-    private fun handleMotionSceneEvent(p0: MotionEvent, p1: MotionEvent) : Boolean {
-       return true
     }
 
     private fun handleViewPagerEvent() : Boolean {

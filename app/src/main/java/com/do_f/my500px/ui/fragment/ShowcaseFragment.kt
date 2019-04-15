@@ -24,6 +24,7 @@ import com.do_f.my500px.databinding.FragmentShowcaseBinding
 import com.do_f.my500px.enumdir.State
 import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.dialogfragment.CommentsFragment
+import com.do_f.my500px.ui.dialogfragment.VotesFragment
 import com.do_f.my500px.viewmodel.SharedViewModel
 import com.do_f.my500px.viewmodel.ShowcaseViewModel
 import kotlinx.android.synthetic.main.fragment_showcase.*
@@ -50,6 +51,11 @@ class ShowcaseFragment : BFragment() {
         }, { id, commentsCount ->
             fragmentManager?.let {
                 val f = CommentsFragment.newInstance(id, commentsCount)
+                f.show(it, BDialogFragment.TAG)
+            }
+        }, { id, votesCount ->
+            fragmentManager?.let {
+                val f = VotesFragment.newInstance(id, votesCount)
                 f.show(it, BDialogFragment.TAG)
             }
         })
