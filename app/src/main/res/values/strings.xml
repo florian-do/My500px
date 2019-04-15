@@ -12,4 +12,6 @@
 	<string name="views">Views</string>
 	<string name="exif">%1$smm f/%2$s %3$ss ISO%4$s</string>
 	<string name="number_comments">%d comments</string>
+	<string name="votes_label">and %d more liked this photo.</string>
+	<string name="vote_label">liked this photo.</string>
 </resources>

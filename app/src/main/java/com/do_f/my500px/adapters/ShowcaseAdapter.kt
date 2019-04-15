@@ -3,7 +3,6 @@ package com.do_f.my500px.adapters
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -32,8 +31,6 @@ class ShowcaseAdapter(private val glide: RequestManager,
                       private val commentListener: (Int, Int) -> Unit)
     : PagedListAdapter<Photo, ShowcaseAdapter.ViewHolder>(diffCallback) {
 
-    val TAG = "Adapter"
-
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val binding : AdapterShowcaseBinding = DataBindingUtil.inflate(
             LayoutInflater.from(p0.context),
@@ -46,7 +43,6 @@ class ShowcaseAdapter(private val glide: RequestManager,
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         getItem(p1)?.let { item ->
-            Log.d(TAG, "ID : ${item.id}")
             var windowWidth = Resources.getSystem().displayMetrics.widthPixels.toFloat()
             when(orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
@@ -85,7 +81,7 @@ class ShowcaseAdapter(private val glide: RequestManager,
                     .into(p0.binding.avatar)
 
             p0.binding.picture.setOnClickListener {
-                mListener.invoke(item)
+                mListener.invoke(getItem(p1)!!)
             }
 
             p0.binding.commentView?.setOnClickListener {

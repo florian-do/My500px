@@ -9,6 +9,7 @@ data class User(
     val country: String,
     val cover_url: String,
     val firstname: String,
+    val followers_count: Int,
     val fullname: String,
     val id: Int,
     val lastname: String,
