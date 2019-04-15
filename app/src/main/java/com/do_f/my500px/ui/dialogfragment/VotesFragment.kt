@@ -1,7 +1,6 @@
 package com.do_f.my500px.ui.dialogfragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,39 +11,38 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 
 import com.do_f.my500px.R
-import com.do_f.my500px.adapters.CommentAdapter
+import com.do_f.my500px.adapters.VoteAdapter
 import com.do_f.my500px.base.BDialogFragment
-import com.do_f.my500px.databinding.FragmentCommentsBinding
-import com.do_f.my500px.viewmodel.CommentsViewModel
+import com.do_f.my500px.databinding.FragmentVotesBinding
+import com.do_f.my500px.enumdir.State
+import com.do_f.my500px.viewmodel.VotesViewModel
 
-class CommentsFragment : BDialogFragment() {
+private const val ARG_ID = "arg_id"
+private const val ARG_VOTES_COUNT = "arg_votes_count"
 
-    private val TAG = "CommentsFragment"
-    private val ARG_ID = "arg_id"
-    private val ARG_COMMENTS_COUNT = "arg_comments_count"
-
-    private var commentsCount: Int = 0
+class VotesFragment : BDialogFragment() {
     private var pictureId: Int = 0
-    private lateinit var adapter : CommentAdapter
-    private lateinit var viewModel : CommentsViewModel
-    private lateinit var binding : FragmentCommentsBinding
-    var mListener: (() -> Unit)? = null
+    private var votesCount: Int = 0
+
+    private lateinit var binding : FragmentVotesBinding
+    private lateinit var viewModel : VotesViewModel
+    private lateinit var adapter : VoteAdapter
+
+    lateinit var mListener: () -> Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             pictureId = it.getInt(ARG_ID)
-            commentsCount = it.getInt(ARG_COMMENTS_COUNT)
+            votesCount = it.getInt(ARG_VOTES_COUNT)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_comments, container, false)
-        adapter = CommentAdapter(Glide.with(this), 0)
-        viewModel = ViewModelProviders.of(this).get(CommentsViewModel::class.java)
-        var startPage = (commentsCount / 20)
-        if ((commentsCount % 20) != 0) startPage++
-        viewModel.init(pictureId, startPage)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_votes, container, false)
+        adapter = VoteAdapter(Glide.with(this), 0)
+        viewModel = ViewModelProviders.of(this).get(VotesViewModel::class.java)
+        viewModel.init(pictureId)
         binding.loading = true
         return binding.root
     }
@@ -53,32 +51,37 @@ class CommentsFragment : BDialogFragment() {
         super.onActivityCreated(savedInstanceState)
 
         val lm = LinearLayoutManager(context)
-        lm.reverseLayout = true
         binding.rvFeed.layoutManager = lm
         binding.rvFeed.adapter = adapter
-        binding.title.text = resources.getQuantityString(R.plurals.comment, commentsCount, commentsCount)
+        binding.title.text = resources.getQuantityString(R.plurals.like, votesCount, votesCount)
         binding.back.setOnClickListener {
             fragmentManager?.popBackStack()
         }
+
         viewModel.data.observe(this, Observer {
             binding.loading = false
-            Log.d(TAG, "${it.size}")
             adapter.submitList(it)
+        })
+
+        viewModel.getState().observe(this, Observer {
+            if (it == State.ERROR) {
+                //Todo do something
+            }
         })
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mListener?.invoke()
+        mListener.invoke()
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(id: Int, commentsCount: Int) =
-            CommentsFragment().apply {
+        fun newInstance(id: Int, votesCount : Int) =
+            VotesFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_ID, id)
-                    putInt(ARG_COMMENTS_COUNT, commentsCount)
+                    putInt(ARG_VOTES_COUNT, votesCount)
                 }
             }
     }

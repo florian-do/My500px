@@ -19,6 +19,8 @@ import com.do_f.my500px.api.model.Photo
 import com.do_f.my500px.findBehavior
 import com.do_f.my500px.listener.DismissEvent
 import com.do_f.my500px.listener.OnSystemUIListener
+import com.do_f.my500px.px
+import com.do_f.my500px.singleton.DataHolder
 import com.do_f.my500px.ui.fragment.PhotoDetailHostFragment
 import com.do_f.my500px.ui.fragment.ShowcaseFragment
 import com.do_f.my500px.view.BackdropBehavior
@@ -47,7 +49,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var backdropBehavior : BackdropBehavior
 
     companion object {
-        var isSwipeDismissEnable: Boolean = true
+        var isSwipeDismissEnable : Boolean = true
+        var bottomContentHeight : Int = 0
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,9 +111,10 @@ class MainActivity : AppCompatActivity(),
         pictureViewerBackground.visibility = VISIBLE
         isPictureViewHidden = false
 
+        val position = DataHolder.instance.data.indexOf(item)
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.frontContainer, PhotoDetailHostFragment.newInstance(item), PICTURE_VIEWER_TAG)
+            .replace(R.id.frontContainer, PhotoDetailHostFragment.newInstance(position), PICTURE_VIEWER_TAG)
             .commitNow()
     }
 
@@ -328,5 +332,10 @@ class MainActivity : AppCompatActivity(),
         val mActionBarSize = styledAttributes.getDimension(0, 0f).toInt()
         styledAttributes.recycle()
         return mActionBarSize
+    }
+
+    private fun getBottomContentHeight() : Int {
+
+        return bottomContentHeight + 50.px
     }
 }

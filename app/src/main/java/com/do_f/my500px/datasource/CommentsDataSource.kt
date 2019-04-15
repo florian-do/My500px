@@ -1,12 +1,16 @@
 package com.do_f.my500px.datasource
 
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import com.do_f.my500px.BuildConfig
 import com.do_f.my500px.api.model.Comment
 import com.do_f.my500px.api.service.PhotosService
+import com.do_f.my500px.enumdir.State
 import java.io.IOException
 
 class CommentsDataSource(val api: PhotosService, val id: Int, val startPage : Int) : PageKeyedDataSource<Int, Comment>() {
+
+    var state: MutableLiveData<State> = MutableLiveData()
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Comment>) {
         callApi(startPage) { items, nextPage ->
@@ -39,5 +43,9 @@ class CommentsDataSource(val api: PhotosService, val id: Int, val startPage : In
         } catch (e: IOException) {
 
         }
+    }
+
+    private fun updateState(state: State) {
+        this.state.postValue(state)
     }
 }
