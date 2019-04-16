@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View

@@ -3,7 +3,6 @@ package com.do_f.my500px.adapters
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import android.view.LayoutInflater
 import android.view.ViewGroup

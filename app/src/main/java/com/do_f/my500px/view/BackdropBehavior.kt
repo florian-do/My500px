@@ -3,7 +3,6 @@ package com.do_f.my500px.view
 import android.content.Context
 
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
