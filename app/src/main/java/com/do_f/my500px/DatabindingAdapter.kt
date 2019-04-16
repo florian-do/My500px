@@ -18,9 +18,9 @@ class DatabindingAdapter {
         @JvmStatic
         @BindingAdapter("android:visibility")
         fun View.setVisibility(b : Boolean) {
-            when(b) {
-                true -> visibility = View.VISIBLE
-                false -> visibility = View.GONE
+            visibility = when(b) {
+                true -> View.VISIBLE
+                false -> View.GONE
             }
         }
     }
