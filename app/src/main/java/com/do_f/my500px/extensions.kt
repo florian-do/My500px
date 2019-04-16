@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.do_f.my500px.api.model.Photo
 import java.text.SimpleDateFormat
-import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
@@ -53,20 +52,17 @@ fun Photo.getRatio(): Float {
 fun String.parseDate(r : Resources) : String {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val commentDate = LocalDateTime.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-        val date = LocalDate.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-        val period = Period.between(date, LocalDate.now())
+        val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val timeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
+        val oldDate = timeFormat.parse(commentDate.format(timeFormatter))
+        val currentDate = Date()
 
-        if (period.isZero) {
-            val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            val timeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
-            val oldDate = timeFormat.parse(commentDate.format(timeFormatter))
-            val currentDate = Date()
+        val diff = currentDate.time - oldDate.time
+        val seconds = diff / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
 
-            val diff = currentDate.time - oldDate.time
-            val seconds = diff / 1000
-            val minutes = seconds / 60
-            val hours = minutes / 60
-
+        if (hours < 24) {
             return if (hours == 0L) {
                 r.getQuantityString(R.plurals.time_minute, minutes.toInt(), minutes)
             } else {
@@ -76,6 +72,8 @@ fun String.parseDate(r : Resources) : String {
             val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
             return commentDate.format(formatter)
         }
+    } else {
+        // https://github.com/JakeWharton/ThreeTenABP
     }
     return ""
 }
